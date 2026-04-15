@@ -1,8 +1,4 @@
-## Complete End-to-End Example
-
-This example ties together all layers: simulation API → perceptor → teacher → agent orchestration → training.
-
-### Sim Implementation (ServerAmesa)
+## Sim
 
 ```python
 # file: my_sim.py
@@ -128,11 +124,12 @@ class ServerImpl(ServerAmesa):
         return None
 ```
 
-### Perceptor (Optional)
+## Perceptor (Optional)
 
 ```python
 # file: my_perceptor.py
-from amesa_core.agent.perceptor import PerceptorImpl
+from amesa_core.agent.perceptor.perceptor import Perceptor
+from amesa_core.agent.perceptor.perceptor_impl import PerceptorImpl
 
 
 class LoadDeltaPerceptor(PerceptorImpl):
@@ -154,9 +151,16 @@ class LoadDeltaPerceptor(PerceptorImpl):
 
     def filtered_sensor_space(self, obs):
         return []
+
+
+LOAD_DELTA_PERCEPTOR = Perceptor(
+    "load-delta",
+    LoadDeltaPerceptor,
+    "Computes load delta between steps.",
+)
 ```
 
-### Teacher Skill
+## Teacher Skill
 
 ```python
 # file: my_teacher.py
@@ -198,7 +202,7 @@ class GridStabilityTeacher(SkillTeacher):
         return action if action is not None else self.action_space.sample()
 ```
 
-### Building the Agent
+## Building the Agent
 
 ```python
 # file: build_agent.py
@@ -214,16 +218,16 @@ def build_agent():
 
     # Add sensors
     agent.add_sensors([
-        Sensor("solar_kw", "Solar production (kW)", lambda s, i=0: s[i]),
-        Sensor("battery_soc", "Battery state of charge", lambda s, i=1: s[i]),
-        Sensor("load_kw", "Total load (kW)", lambda s, i=2: s[i]),
-        Sensor("grid_price", "Grid price index", lambda s, i=3: s[i]),
-        Sensor("inverter_temp", "Inverter temperature", lambda s, i=4: s[i]),
-        Sensor("hour_of_day", "Hour of day", lambda s, i=5: s[i]),
+        Sensor("solar_kw", "Solar production (kW)"),
+        Sensor("battery_soc", "Battery state of charge"),
+        Sensor("load_kw", "Total load (kW)"),
+        Sensor("grid_price", "Grid price index"),
+        Sensor("inverter_temp", "Inverter temperature"),
+        Sensor("hour_of_day", "Hour of day"),
     ])
 
     # Add perceptor
-    agent.add_perceptor(LoadDeltaPerceptor())
+    agent.add_perceptor(LOAD_DELTA_PERCEPTOR)
 
     # Add skill
     skill = Skill(

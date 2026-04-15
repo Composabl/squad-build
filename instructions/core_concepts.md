@@ -1,6 +1,4 @@
-## Core Concepts
-
-### What AMESA Builds
+## What AMESA Builds
 
 AMESA is a platform for building **multi-agent systems** that use Machine Teaching. An agent system is composed of:
 
@@ -12,27 +10,48 @@ AMESA is a platform for building **multi-agent systems** that use Machine Teachi
 
 The workflow is: connect a simulator → define perception → define skills → orchestrate skills → configure scenarios → train → evaluate → deploy.
 
-### Skill Agent Types
+## Instructions overview
 
-| Type                              | Also Called            | How It Decides                                                    |
-| --------------------------------- | ---------------------- | ----------------------------------------------------------------- |
-| **Teacher** (learned skill)       | Learned skill agent    | Deep reinforcement learning                                       |
-| **Controller** (programmed skill) | Programmed skill agent | Code — math, rules, optimization, MPC, PID, heuristics, API calls |
-| **Selector** (orchestrator)       | Orchestrator           | Learned (DRL) or programmed                                       |
+#### Programmed Skills (Controllers)
 
-Teachers learn by practicing in simulation. Controllers execute predetermined logic. Selectors decide which child skill should be active at any given moment.
+Controllers are deterministic, code-based skill agents. They are useful for well-understood sub-tasks where you want to use optimization, PID control, MPC, heuristics, or API calls.
 
-### Terminology Quick Reference
+#### Orchestrating Skill Agents
 
-| Term                 | Definition                                                               |
-| -------------------- | ------------------------------------------------------------------------ |
-| **Sensor variables** | Observations coming from the simulator — the agent's inputs              |
-| **Action space**     | The set of possible actions the agent can take                           |
-| **Episode**          | One complete run of the simulation from reset to termination             |
-| **Reward**           | Numeric feedback after each action telling the agent how well it did     |
-| **Perceptor**        | A module that transforms raw sensors into new, derived variables         |
-| **Scenario**         | A named configuration of variable values/ranges representing a situation |
-| **Coach**            | The teaching construct used for coordinated (multi-agent) skills         |
+Orchestration defines how multiple skill agents work together.
+
+#### Perception Layer (Perceptors)
+
+The perception layer sits before the skills layer in the agent system architecture. Each perceptor inputs sensor variables, processes them, and outputs **new derived variables** that are automatically added to the sensor list.
+
+Perceptors can use any Python function or library, including ML models and LLM APIs.
+
+#### Scenarios
+
+Scenarios carve the simulation space into named situations defined by specific variable configurations. They enable targeted training — each skill practices only the scenarios relevant to it — and help orchestrators learn which skill to activate under which conditions.
+
+#### Simulation Environment
+
+AMESA agents train inside a simulation. The simulation API extends the **Gymnasium `gymnasium.Env`** standard. You integrate your simulator by implementing the `ServerAmesa` class, which defines how the SDK talks to your simulator.
+
+#### Learned Skills (Teachers)
+
+Learned skills use DRL. You configure a **teacher** that provides reward signals, termination conditions, success criteria, and optional rules. The agent practices in simulation until it achieves competence.
+
+#### Trainer API & Configuration
+
+The **Trainer** orchestrates the entire training lifecycle: spinning up simulation workers, collecting experience, updating policies, and managing checkpoints. You configure training via a config dict or TrainerConfig object, then call `trainer.train(agent, train_cycles=N)`. **This framework only builds V2 agents**, so examples below assume `target.v2`.
+
+## Terminology Quick Reference
+
+| Term                  | Definition                                                           |
+| --------------------- | -------------------------------------------------------------------- |
+| **Sensor variables**  | Observations coming from the simulator — the agent's inputs          |
+| **Action space**      | The set of possible actions the agent can take                       |
+| **Observation space** | The set of possible observations the sim can return                  |
+| **Episode**           | One complete run of the simulation from reset to termination         |
+| **Reward**            | Numeric feedback after each action telling the agent how well it did |
+| **Coach**             | The teaching construct used for coordinated (multi-agent) skills     |
 
 ## Data Flow Summary
 

@@ -1,7 +1,3 @@
-## Training Your Agent — Trainer API & Configuration
-
-The **Trainer** orchestrates the entire training lifecycle: spinning up simulation workers, collecting experience, updating policies, and managing checkpoints. You configure training via a config dict or TrainerConfig object, then call `trainer.train(agent, train_cycles=N)`.
-
 ### Creating and Configuring the Trainer
 
 #### Basic Setup
@@ -144,23 +140,25 @@ class CartpoleBalanceTeacher(SkillTeacher):
 # 2. Build the agent
 agent = Agent()
 agent.add_sensors([
-    Sensor("theta", "Pole angle (radians)", lambda s, n="theta", i=0: s[n] if isinstance(s, dict) else s[i]),
-    Sensor("theta_dot", "Pole angle velocity", lambda s, n="theta_dot", i=1: s[n] if isinstance(s, dict) else s[i]),
+    Sensor("theta", "Pole angle (radians)"),
+    Sensor("theta_dot", "Pole angle velocity"),
 ])
 
 skill = Skill(
     "balance-pole",
     CartpoleBalanceTeacher,
-    training_cycles=5,
-    custom_action_space=Box(low=-1.0, high=1.0, shape=(1,))
+    training_cycles=5
 )
 agent.add_skill(skill)
 
 # 3. Configure and run training
 config = {
     "target": {
-        "local": {
-            "address": "localhost:50051"
+        "v2": {
+            "redis_url": "redis://localhost:6379",
+            "sim_image": "...",
+            "initial_replicas": 4,
+            "num_episode_managers": 2,
         }
     }
 }
@@ -170,47 +168,4 @@ try:
     trainer.train(agent, train_cycles=5)
 finally:
     trainer.close()
-```
-
-### Checking Training Progress
-
-During training, the SDK emits telemetry events to the historian (if enabled). Query training status via:
-
-```python
-# Check if trainer is still running
-is_running = trainer.is_training()
-
-# Get the current run ID
-run_id = trainer.get_run_id()
-```
-
-Training logs are written to stdout. Look for lines like:
-
-```
-2026-04-23 10:15:00 INFO [trainer] Cycle: 1/5, Episodes: 8, Steps/sec: 218.85
-2026-04-23 10:15:42 INFO [trainer] PPO update completed, loss: 0.0234
-```
-
-### Accessing Trained Models
-
-After training completes, model checkpoints are saved to:
-
-```
-{output_dir}/{skill_name}/policy_checkpoint_{timestamp}/
-```
-
-Example:
-
-```bash
-ls benchmarks/control/policy_checkpoint_20260423_101542/
-```
-
-To load a policy for inference:
-
-```python
-from ray.rllib.algorithms.ppo import PPO
-
-# Load the checkpoint
-policy = PPO.from_checkpoint("benchmarks/control/policy_checkpoint_20260423_101542/")
-action = policy.compute_single_action(observation)[0]
 ```

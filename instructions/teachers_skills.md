@@ -1,18 +1,3 @@
-## Skill Agents — Learned Skills (Teachers)
-
-Learned skills use DRL. You configure a **teacher** that provides reward signals, termination conditions, success criteria, and optional rules. The agent practices in simulation until it achieves competence.
-
-### Creating a Learned Skill
-
-**Via CLI:**
-
-```bash
-AMESA login
-composabl skill new
-```
-
-You'll be prompted for a name, description, and type (`teacher`). The SDK generates a folder with a Python teacher template.
-
 ### Training with Goals
 
 You can use specialized teacher classes in the SDK. The five goal types are: `AvoidGoal`, `MaximizeGoal`, `MinimizeGoal`, `ApproachGoal`, `MaintainGoal`.

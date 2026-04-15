@@ -1,20 +1,4 @@
-## Skill Agents — Programmed Skills (Controllers)
-
-Controllers are deterministic, code-based skill agents. They are useful for well-understood sub-tasks where you want to use optimization, PID control, MPC, heuristics, or API calls.
-
-### Creating a Controller
-
-Controllers are created only through the SDK:
-
-```bash
-AMESA login
-composabl skill new
-# Choose "controller" when prompted
-```
-
-This generates a folder with a `controller.py` template.
-
-### The Python Controller Class
+## Functions
 
 #### `__init__()`
 
@@ -40,7 +24,7 @@ async def compute_action(self, obs, action):
 
 These work identically to the teacher versions (see `teachers_skills.md`). Controllers don't train, but these functions connect them to the rest of the agent system during training and execution.
 
-### Third-Party API Integrations as Controllers
+## Third-Party API Integrations as Controllers
 
 Controllers can wrap external API calls. This lets the agent system incorporate decisions from external services (machine monitoring APIs, optimization services, etc.).
 
@@ -91,7 +75,7 @@ class ThirdPartyAPISkill(SkillController):
         return False
 ```
 
-### Adding Controllers via the SDK
+## Adding Controllers via the SDK
 
 ```python
 third_party_skill = Skill("third_party_api", ThirdPartyAPISkill)

@@ -1,31 +1,6 @@
-## Perception Layer (Perceptors)
-
-The perception layer sits before the skills layer in the agent system architecture. Each perceptor inputs sensor variables, processes them, and outputs **new derived variables** that are automatically added to the sensor list.
-
-Perceptors can use any Python function or library, including ML models and LLM APIs.
-
 ### Adding Perceptors to Agent Systems
 
 Perception always comes before orchestrators and skills — raw sensor data is transformed first, then the enriched data flows to the decision-making layers.
-
-### Creating a New Perceptor
-
-Use the CLI to generate a perceptor template:
-
-```bash
-composabl perceptor new
-```
-
-This creates a directory structure:
-
-```
-perceptor_name/
-├── perceptor_name/
-│   ├── __init__.py
-│   └── perceptor.py
-├── pyproject.toml
-└── README.md
-```
 
 #### Basic Perceptor Example
 
@@ -49,9 +24,9 @@ class DeltaCounter():
     def filtered_sensor_space(self, sensors):
         return ["state1"]
 
-# Register the perceptor with its output variable names
+# Register the perceptor with a name
 delta_counter = Perceptor(
-    ["delta_counter", "state2"],
+    "delta-counter",
     DeltaCounter,
     "the change in the counter from the last two steps"
 )
@@ -61,7 +36,12 @@ Key points:
 
 - `compute()` returns a dict of new variable names → values.
 - `filtered_sensor_space()` declares which sensors the perceptor needs as input.
-- The `Perceptor()` constructor takes: output variable names, the implementation class, and a description.
+- The `Perceptor()` constructor takes: a perceptor name, the implementation class, and a description.
+- Output variable names are the keys returned from `compute()`.
+- When wiring into an `Agent`, pass the `Perceptor(...)` wrapper to `agent.add_perceptor(...)` (not the `PerceptorImpl` instance), since the agent expects the wrapper's `init()` method.
+- **AMESA runtime note:** the perceptor reset path awaits the perceptor instance; add a no-op
+  `__await__()` that returns `self` to your `PerceptorImpl` to avoid
+  `can't be used in 'await' expression` errors.
 
 ### ML Model as a Perceptor
 

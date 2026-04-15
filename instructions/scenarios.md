@@ -1,7 +1,3 @@
-## Scenarios
-
-Scenarios carve the simulation space into named situations defined by specific variable configurations. They enable targeted training — each skill practices only the scenarios relevant to it — and help orchestrators learn which skill to activate under which conditions.
-
 ### Defining Scenarios by Variable Type
 
 | Variable Type          | Definition Method    | Example                                    |
@@ -12,7 +8,7 @@ Scenarios carve the simulation space into named situations defined by specific v
 
 Discrete variables often come from a perceptor (e.g., an ML classifier) that transforms raw sensors into categorical outputs.
 
-#### SDK note: Scenario dicts (for coding agents)
+#### Scenario dicts
 
 When building agents in Python, you can pass either a `Scenario` object or a plain `dict` into `skill.add_scenario(...)`. Dicts are converted via `Scenario.from_json(...)`. The dict keys become scenario variables, and values can be:
 

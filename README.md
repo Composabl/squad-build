@@ -123,25 +123,26 @@ exec "$SHELL"
 
 To install additional Python versions, use `pyenv install`
 
-For example, to download and install Python 3.10.4, run:
+Install the pinned Python version (see `.python-version`):
 
 ```sh
-pyenv install 3.10.4
+pyenv install "$(cat .python-version)"
 ```
 
 Running `pyenv install -l` gives the list of all available versions.
 
 #### 5. Create your virtual environment and activate it
 
-Set the python version you are going to use for the current directory (this creates a .python-version file).
+Set the python version you are going to use for the current directory (this aligns with `.python-version`).
 
 ```sh
-pyenv local 3.10.4
+pyenv local "$(cat .python-version)"
 ```
 
-Then create the python environment and activate it.
+Then create the python environment and activate it. Install `amesa-dev`.
 
 ```sh
 python -m venv .venv
 source .venv/bin/activate
+pip install amesa-dev
 ```

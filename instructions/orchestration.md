@@ -1,7 +1,3 @@
-## Orchestrating Skill Agents
-
-Orchestration defines how multiple skill agents work together. AMESA supports three orchestration patterns.
-
 ### Hierarchies and Sequences (Orchestrators / Selectors)
 
 For agent systems where different skills control the system under different conditions, an **orchestrator** (also called a selector) chooses the right skill at the right time.

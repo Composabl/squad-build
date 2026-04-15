@@ -1,8 +1,6 @@
-📌 Imported from squad-export on 2026-04-14T19:23:47.621Z. Portable knowledge carried over; project learnings from previous project preserved below.
-
 # Project Context
 
-- **Project:** temp
+- **Project:** AMESA
 - **Created:** 2026-04-14
 
 ## Core Context

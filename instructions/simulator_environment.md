@@ -1,7 +1,3 @@
-## Simulation Environment
-
-AMESA agents train inside a simulation. The simulation API extends the **Gymnasium `gymnasium.Env`** standard. You integrate your simulator by implementing the `ServerAmesa` class, which defines how the SDK talks to your simulator.
-
 ### Setting Up the Environment Instance
 
 #### `make(env_id, env_init)`
@@ -102,7 +98,7 @@ async def get_scenario(self):
 - **`env_init` is your sim contract.** The SDK forwards `env_init` from training → sim `make(...)`. Use it for model paths, reward config, initial state, max steps, or any custom knobs your sim needs.
 - **V2 event-based sims require a transport target.** `env_init` must include either `sim_address` (connect to an existing gRPC sim) or `sim_image` (spawn a container per sim).
 - **Scenario handling:** `set_scenario()` receives a `Scenario` object created from a dict. Use `scenario.sample()` to materialize concrete values for reset-time initialization.
-- **Scenario serialization:** `get_scenario()` should return `None` when unset. If you embed scenario metadata in `info`, prefer a JSON string (so downstream parquet writers can store it as a string column).
+- **Scenario serialization:** `get_scenario()` should return `None` when unset.
 - **Reward/termination responsibility:** the sim can supply reward/termination, but a skill’s teacher can override. If your sim reward is meaningful, pass it through in the teacher.
 
 ### Visualization
