@@ -152,6 +152,12 @@ class LoadDeltaPerceptor(PerceptorImpl):
     def filtered_sensor_space(self, obs):
         return []
 
+    def __await__(self):
+        async def _noop():
+            return self
+
+        return _noop().__await__()
+
 
 LOAD_DELTA_PERCEPTOR = Perceptor(
     "load-delta",
@@ -210,7 +216,7 @@ from amesa_core.agent.agent import Agent
 from amesa_core.agent.sensors.sensor import Sensor
 from amesa_core.agent.skill.skill import Skill
 from my_teacher import GridStabilityTeacher
-from my_perceptor import LoadDeltaPerceptor
+from my_perceptor import LOAD_DELTA_PERCEPTOR
 
 
 def build_agent():
@@ -309,15 +315,17 @@ def main():
         # Configure V2 training
         config = {
             "target": {
+                "type": "v2",
                 "v2": {
                     "redis_url": REDIS_URL,
+                    "enable_sim_group": True,
+                    "sim_node_local": True,
                     "sim_image": SIM_IMAGE,
-                    "initial_replicas": 3,
-                    "num_episode_managers": 1,
-                    "enable_ppo_training": True,
-                    "ppo_training_samples": 750,
-                    "enable_evaluation": False,
-                    "enable_historian": False,
+                    "perceptor_node_local": True,
+                    "skill_node_local": True,
+                    "episode_manager_local": True,
+                    "enable_remote_skill": False,
+                    "enable_auto_scale": False,
                 }
             }
         }

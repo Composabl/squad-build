@@ -14,11 +14,17 @@ agent.add_skill(...)
 # Define trainer configuration
 config = {
     "target": {
+        "type": "v2",
         "v2": {
             "redis_url": "redis://localhost:6379",
+            "enable_sim_group": True,
+            "sim_node_local": True,
             "sim_image": "...", # Choose local built Docker sim image
-            "initial_replicas": 4,
-            "num_episode_managers": 2,
+            "perceptor_node_local": True,
+            "skill_node_local": True,
+            "episode_manager_local": True,
+            "enable_remote_skill": False,
+            "enable_auto_scale": False,
         }
     }
 }
@@ -38,7 +44,7 @@ The `config["target"]` field is a `TrainerTargetConfig` model with optional fiel
 | `target.docker`     | TrainerTargetDockerConfig (optional)     | Docker sim config  | Remote sim in Docker.                                                              |
 | `target.kubernetes` | TrainerTargetKubernetesConfig (optional) | K8s config         | Sims on Kubernetes.                                                                |
 
-**Exactly one target type must be specified.** The SDK automatically detects which via the `type` computed property.
+**Exactly one target type must be specified.** For V2, set `target.type = "v2"` alongside the `target.v2` block.
 
 #### V2-Specific Configuration (Event-Based Training)
 
@@ -47,15 +53,16 @@ When `target.v2` is set, use the `TrainerTargetV2Config` sub-config:
 ```python
 config = {
     "target": {
+        "type": "v2",
         "v2": {
             "redis_url": "redis://localhost:6379",
+            "enable_sim_group": True,
+            "sim_node_local": True,
             "sim_image": "...", # Choose local built Docker sim image
-            "initial_replicas": 8,        # Number of sim workers
-            "num_episode_managers": 4,    # Number of episode managers
-            "enable_ppo_training": True,
-            "ppo_training_samples": 4000,
-            "enable_evaluation": False,
-            "enable_historian": False,
+            "perceptor_node_local": True,
+            "skill_node_local": True,
+            "episode_manager_local": True,
+            "enable_remote_skill": False,
             "enable_auto_scale": False,
         },
     },
@@ -64,17 +71,17 @@ config = {
 
 **Key V2 fields:**
 
-| Field                  | Type | Default                    | Description                                                                                                  |
-| ---------------------- | ---- | -------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `redis_url`            | str  | `"redis://localhost:6379"` | Redis connection URL for event streams. Required.                                                            |
-| `sim_image`            | str  | None                       | Docker image for the simulator.                                                                              |
-| `initial_replicas`     | int  | 1                          | Number of simulator instances to spawn. Should match expected concurrency.                                   |
-| `num_episode_managers` | int  | 1                          | Number of episode managers. Training samples are sharded across them. Must divide `initial_replicas` evenly. |
-| `enable_ppo_training`  | bool | True                       | Whether to run PPO training.                                                                                 |
-| `ppo_training_samples` | int  | 4000                       | Total samples collected before triggering PPO updates.                                                       |
-| `enable_evaluation`    | bool | False                      | Whether to run post-training evaluation.                                                                     |
-| `enable_historian`     | bool | False                      | Whether to enable telemetry historian.                                                                       |
-| `enable_auto_scale`    | bool | False                      | Whether to auto-scale sim/skill replicas during training.                                                    |
+| Field                   | Type | Default                    | Description                                                             |
+| ----------------------- | ---- | -------------------------- | ----------------------------------------------------------------------- |
+| `redis_url`             | str  | `"redis://localhost:6379"` | Redis connection URL for event streams. Required.                       |
+| `sim_image`             | str  | None                       | Docker image for the simulator.                                         |
+| `enable_sim_group`      | bool | True                       | Whether to enable sim groups for v2 orchestration.                      |
+| `sim_node_local`        | bool | False                      | Run the sim node locally instead of using a remote worker.              |
+| `perceptor_node_local`  | bool | False                      | Run the perceptor node locally.                                         |
+| `skill_node_local`      | bool | False                      | Run the skill node locally.                                             |
+| `episode_manager_local` | bool | False                      | Run the episode manager locally.                                        |
+| `enable_remote_skill`   | bool | False                      | Allow skills to run on remote workers rather than only local execution. |
+| `enable_auto_scale`     | bool | False                      | Whether to auto-scale sim/skill replicas during training.               |
 
 ### Training Entry Point
 
@@ -143,6 +150,7 @@ agent.add_sensors([
     Sensor("theta", "Pole angle (radians)"),
     Sensor("theta_dot", "Pole angle velocity"),
 ])
+If your sim returns dict observations, add mapping lambdas so each sensor extracts its value (e.g., `Sensor("theta", "...", lambda sensors: sensors["theta"])`).
 
 skill = Skill(
     "balance-pole",
@@ -154,11 +162,17 @@ agent.add_skill(skill)
 # 3. Configure and run training
 config = {
     "target": {
+        "type": "v2",
         "v2": {
             "redis_url": "redis://localhost:6379",
+            "enable_sim_group": True,
+            "sim_node_local": True,
             "sim_image": "...",
-            "initial_replicas": 4,
-            "num_episode_managers": 2,
+            "perceptor_node_local": True,
+            "skill_node_local": True,
+            "episode_manager_local": True,
+            "enable_remote_skill": False,
+            "enable_auto_scale": False,
         }
     }
 }
@@ -169,3 +183,5 @@ try:
 finally:
     trainer.close()
 ```
+
+When running v2 locally, keep `enable_sim_group=True` and set local node flags (`sim_node_local`, `perceptor_node_local`, `skill_node_local`, `episode_manager_local`) so streams and consumer groups are created on the same machine. If Redis reports `MISCONF` from snapshotting failures, run it with persistence disabled (`--save "" --appendonly no --stop-writes-on-bgsave-error no`) or adjust your Redis configuration to allow writes.

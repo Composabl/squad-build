@@ -40,7 +40,7 @@ Learned skills use DRL. You configure a **teacher** that provides reward signals
 
 #### Trainer API & Configuration
 
-The **Trainer** orchestrates the entire training lifecycle: spinning up simulation workers, collecting experience, updating policies, and managing checkpoints. You configure training via a config dict or TrainerConfig object, then call `trainer.train(agent, train_cycles=N)`. **This framework only builds V2 agents**, so examples below assume `target.v2`.
+The **Trainer** orchestrates the entire training lifecycle: spinning up simulation workers, collecting experience, updating policies, and managing checkpoints. You configure training via a config dict or TrainerConfig object, then call `trainer.train(agent, train_cycles=N)`. The SDK supports both V2 event-based targets and local Ray-based targets.
 
 ## Terminology Quick Reference
 
