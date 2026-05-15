@@ -9,31 +9,31 @@ class SimImpl(ServerAmesa):
         self.env = GreenhouseSim(self.env_init)
 
     async def make(self, env_id: str, env_init: dict):
-        return await self.env.make(env_id, env_init)
+        return self.env.make(env_id, env_init)
 
     async def sensor_space_info(self):
-        return await self.env.sensor_space_info()
+        return self.env.sensor_space_info()
 
     async def action_space_info(self):
-        return await self.env.action_space_info()
+        return self.env.action_space_info()
 
     async def action_space_sample(self):
-        return await self.env.action_space_sample()
+        return self.env.action_space_sample()
 
     async def reset(self):
-        return await self.env.reset()
+        return self.env.reset()
 
     async def step(self, action):
-        return await self.env.step(action)
+        return self.env.step(action)
 
     async def close(self):
-        await self.env.close()
+        self.env.close()
 
     async def set_scenario(self, scenario):
-        await self.env.set_scenario(scenario)
+        self.env.set_scenario(scenario)
 
     async def get_scenario(self):
-        return await self.env.get_scenario()
+        return self.env.get_scenario()
 
     async def get_render(self):
-        return await self.env.get_render()
+        return self.env.get_render()

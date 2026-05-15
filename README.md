@@ -139,10 +139,9 @@ Set the python version you are going to use for the current directory (this alig
 pyenv local "$(cat .python-version)"
 ```
 
-Then create the python environment and activate it. Install `amesa-dev`.
+Then create the python environment and activate it.
 
 ```sh
 python -m venv .venv
 source .venv/bin/activate
-pip install amesa-dev
 ```

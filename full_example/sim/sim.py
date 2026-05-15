@@ -37,28 +37,28 @@ class GreenhouseSim(gym.Env):
             }
         )
 
-    async def make(self, env_id: str, env_init: dict):
+    def make(self, env_id: str, env_init: dict):
         self.env_init = env_init if env_init else self.env_init
         self.max_steps = int(self.env_init.get("max_steps", self.max_steps))
         self.step_count = 0
         self._apply_scenario()
         return {"id": "greenhouse_sim", "max_episode_steps": self.max_steps}
 
-    async def sensor_space_info(self) -> gym.Space:
+    def sensor_space_info(self) -> gym.Space:
         return self.observation_space
 
-    async def action_space_info(self) -> gym.Space:
+    def action_space_info(self) -> gym.Space:
         return self.action_space
 
-    async def action_space_sample(self):
+    def action_space_sample(self):
         return self.action_space.sample()
 
-    async def reset(self):
+    def reset(self):
         self.step_count = 0
         self._apply_scenario()
         return dict(self.state), {}
 
-    async def step(self, action):
+    def step(self, action):
         action_value = float(action[0]) if isinstance(action, (list, np.ndarray)) else float(action)
         temp = float(self.state["air_temp"])
         target_temp = float(self.state["target_temp"])
@@ -90,18 +90,18 @@ class GreenhouseSim(gym.Env):
         }
         return dict(self.state), float(reward), terminated, False, {}
 
-    async def close(self):
+    def close(self):
         return None
 
-    async def set_scenario(self, scenario: dict):
+    def set_scenario(self, scenario: dict):
         self.scenario = materialize_scenario(scenario) if scenario else {}
         self.max_steps = int(self.scenario.get("max_steps", self.max_steps))
         self._apply_scenario()
 
-    async def get_scenario(self):
+    def get_scenario(self):
         return self.scenario
 
-    async def get_render(self):
+    def get_render(self):
         return None
 
     def _scenario_value(self, key: str, default: float) -> float:

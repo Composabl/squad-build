@@ -1,8 +1,10 @@
-# Squad: ignore runtime state (logs, inbox, sessions)
-.squad/orchestration-log/
-.squad/log/
-.squad/decisions/inbox/
-.squad/sessions/
-# Squad: SubSquad activation file (local to this machine)
-.squad-workstream
-.venv/
+.copilot
+.github
+.pytest_cache
+.ruff_cache
+.squad
+.venv
+.gitattributes
+
+basic_ddm_simulator
+ddm_simulator
