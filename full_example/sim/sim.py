@@ -73,7 +73,7 @@ class GreenhouseSim(gym.Env):
         temp = float(np.clip(temp, 0.0, 50.0))
         humidity = float(np.clip(humidity, 0.0, 1.0))
 
-        reward = -abs(temp - target_temp) - 0.5 * abs(humidity - target_humidity) - 0.05 * (
+        reward = -abs(temp - target_temp) - 4.0 * abs(humidity - target_humidity) - 0.02 * (
             action_value**2
         )
 

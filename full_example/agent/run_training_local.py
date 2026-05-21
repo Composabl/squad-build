@@ -10,7 +10,7 @@ from redis import exceptions as redis_exceptions
 from amesa_train.trainer import Trainer
 
 from full_example.agent.build_agent import build_agent
-from full_example.agent.config import AUTO_START_REDIS, REDIS_URL, TRAIN_CYCLES, TRAIN_TARGET, build_trainer_config
+from full_example.agent.config import AUTO_START_REDIS, REDIS_URL, TRAIN_CYCLES, build_trainer_config
 
 
 def _redis_port(redis_url: str) -> int:
@@ -75,7 +75,7 @@ def main():
     os.environ.setdefault("AMESA_EULA_AGREED", "1")
 
     redis_container_id = None
-    if TRAIN_TARGET == "v2" and AUTO_START_REDIS and _is_local_redis(REDIS_URL):
+    if AUTO_START_REDIS and _is_local_redis(REDIS_URL):
         print("Starting Redis…")
         redis_container_id = start_redis(REDIS_URL)
         wait_redis(REDIS_URL)

@@ -26,8 +26,12 @@ class GreenhouseTeacher(SkillTeacher):
                 "target_humidity", 0.0
             )
 
-        action_value = float(action[0]) if action is not None else 0.0
-        reward = -abs(temp_error) - 0.5 * abs(humidity_error) - 0.05 * (action_value**2)
+        reward = sim_reward
+
+        # Bonus for holding both variables within success thresholds
+        if abs(temp_error) < 0.3 and abs(humidity_error) < 0.05:
+            reward += 2.0
+
         return float(reward)
 
     async def compute_termination(self, transformed_sensors: Dict, action) -> bool:

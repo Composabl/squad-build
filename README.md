@@ -2,14 +2,14 @@
 
 ## Table of Content
 
-- [Developer getting started guide](#developer-getting-started-guide)
+- [Getting started guide](#getting-started-guide)
   - [A. Set Your SSH Key](#a-set-your-ssh-key)
   - [B. Clone the Repository](#b-clone-the-repository)
   - [C. Install PyEnv and Set Up Your Environment](#c-install-pyenv-and-set-up-your-environment)
 
-## Developer getting started guide
+## Getting started guide
 
-To get started locally in development, follow these steps:
+Refer to `manifest.json` for docs layout.
 
 ### A. Set your SSH key
 

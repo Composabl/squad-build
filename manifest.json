@@ -2,68 +2,32 @@
   "name": "squad-build",
   "repository": "Composabl/squad-build",
   "description": "Reference implementation and documentation for building AMESA agents and simulators using the AMESA SDK.",
-  "python_version": "3.10.4",
-  "sdk": "amesa-core==0.20.0",
+  "python_version": "3.11.8",
+  "sdk": "amesa-core-dev==0.28.0.dev9",
   "directories": {
-    "schemas": {
-      "description": "Precise interface contracts for every buildable AMESA component. Ground-truth API references for code generation and review.",
+    "docs": {
+      "description": "Primary SDK reference documentation. Ground-truth for v2 API usage, component interfaces, config, and quirks. Prefer these over distilled_docs or schemas when they conflict.",
       "files": {
-        "README.md": "Index and quick-decision guide for all schemas",
-        "data-flow.md": "End-to-end data pipeline overview — read first",
-        "simulator.md": "ServerAmesa — the sim/environment interface",
-        "sensor.md": "Sensor — sensor definitions and registration",
-        "perceptor.md": "PerceptorImpl — perception / feature engineering layer",
-        "teacher.md": "SkillTeacher — RL reward / success / termination contract",
-        "goals.md": "Goal subclasses — declarative alternative to Teacher",
-        "controller.md": "SkillController — deterministic / hand-coded policies",
-        "coach.md": "SkillCoach — multi-agent coordination coordinator",
-        "skill.md": "Skill, SkillSelector, SkillGroup — skill wrappers",
-        "coordinated-skills.md": "SkillCoordinatedSet, SkillCoordinatedPopulation",
-        "scenario.md": "Scenario — curriculum / training variable configuration",
-        "agent.md": "Agent — top-level builder that wires everything together"
-      }
-    },
-    "distilled_docs": {
-      "description": "Condensed, LLM-friendly documentation covering all major AMESA SDK concepts.",
-      "files": {
-        "core_concepts.md": "Core concepts and mental model for the AMESA SDK",
-        "workflow.md": "Development workflow from sim to trained agent",
-        "simulator_environment.md": "How to build and connect simulators",
-        "teachers_skills.md": "Teachers and skills — RL training contracts",
-        "controllers.md": "Controller (hand-coded / deterministic) policies",
-        "perceptors.md": "Perceptors — observation transformation layer",
-        "scenarios.md": "Scenarios and curriculum configuration",
-        "orchestration.md": "Multi-skill orchestration patterns",
-        "config.md": "Agent and training configuration",
-        "inference.md": "Running inference with trained agents",
-        "publish.md": "Publishing simulators and agents",
-        "end_to_end_example.md": "Full end-to-end worked example",
-        "templates.md": "Boilerplate templates for common components",
-        "ui.md": "AMESA UI / dashboard overview"
-      }
-    },
-    "direct_docs": {
-      "description": "Raw SDK documentation fetched directly from the AMESA developer portal.",
+        "README.md": "Documentation index",
+        "trainer.md": "Trainer — v2 config reference, all fields and defaults, training loop",
+        "simulator.md": "ServerAmesa — sim interface, server bootstrap, Dockerfile pattern, Docker env vars",
+        "agent.md": "Agent — construction APIs (declarative, tree, context-manager), key methods",
+        "sensors.md": "Sensor — definition, lambda mapping, normalization",
+        "perceptors.md": "PerceptorImpl — observation transformation, v2 opt-in requirement",
+        "scenarios.md": "Scenario — curriculum configuration, range sampling",
+        "spaces.md": "Spaces — Box, Discrete, Dict, Tuple, MultiBinary, MultiDiscrete",
+        "troubleshooting.md": "Common errors and fixes"
+      },
       "subdirectories": {
-        "establish-a-simulation-environment": {
-          "description": "Guides for setting up and connecting simulators to AMESA.",
+        "skills": {
+          "description": "Per-skill-type documentation.",
           "files": {
-            "about-simulation.md": "Overview of simulation in AMESA",
-            "amesa-simulation-api.md": "Simulation API reference",
-            "connect-a-simulator-to-amesa.md": "Step-by-step: connect a custom simulator",
-            "data-driven-simulation.md": "Data-driven / DDM simulator guide",
-            "publishing-a-sim.md": "How to publish a simulator"
-          }
-        },
-        "reference/sdk_reference": {
-          "description": "SDK API reference docs.",
-          "files": {
-            "skills-api.md": "Skills API",
-            "skill-groups.md": "Skill groups API",
-            "coordinated-skills.md": "Coordinated skills API",
-            "controller-skill.md": "Controller skill API",
-            "perceptors-api.md": "Perceptors API",
-            "teacher-api.md": "Teacher API"
+            "overview.md": "Skill types and implementation types — v2 support matrix",
+            "teacher.md": "SkillTeacher — required and optional methods, action_space, quirks",
+            "controller.md": "SkillController — required methods, compute_action, quirks",
+            "selector.md": "SkillSelector — constructor, children, fixed_order, repeat",
+            "group.md": "SkillGroup — two-skill pipeline, v2 supported",
+            "coordinated.md": "SkillCoach / SkillCoordinatedSet — NOT available in v2"
           }
         }
       }
@@ -80,7 +44,8 @@
             "config.py": "Training hyperparameters and agent configuration",
             "perceptors.py": "Perceptor implementations for the greenhouse agent",
             "teacher.py": "SkillTeacher — reward, success, and termination logic",
-            "run_training_local.py": "Entry point for running a training job locally"
+            "run_training_local.py": "Entry point for running a training job locally",
+            "requirements.txt": "Agent Python dependencies (redis)"
           }
         },
         "sim": {
@@ -104,13 +69,11 @@
   "root_files": {
     "README.md": "Developer getting-started guide (SSH key, pyenv, venv setup)",
     ".mcp.json": "MCP server config pointing to https://api.amesa.com/v1/mcp",
-    ".python-version": "Pins Python 3.10.4 via pyenv",
+    ".python-version": "Pins Python 3.11.8 via pyenv",
     ".gitignore": "Git ignore rules"
   },
   "module_roots": {
     "amesa_core": "Core SDK — Agent, Skill, Sensor, Scenario, SkillTeacher, SkillController, SkillCoach",
-    "amesa_core.networking.sim": "Simulator server base (ServerAmesa)",
-    "amesa_core.agent.skill.goals": "Goal subclasses (MaintainGoal, MaximizeGoal, etc.)",
-    "composabl_core": "Alternate import root for older SDK paths (same package)"
+    "amesa_train": "Training stack — Trainer, v2 event-based training loop, PPO"
   }
 }

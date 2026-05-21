@@ -1,11 +1,13 @@
-.claude
-.copilot
-.github
-.pytest_cache
-.ruff_cache
-.squad
-.venv
+.claude/
+.copilot/
+.github/
+.pytest_cache/
+.ruff_cache/
+.squad/
+.venv/
+
+**/__pycache__/
+
 .gitattributes
 
-basic_ddm_simulator
-ddm_simulator
+.env
