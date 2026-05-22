@@ -144,3 +144,22 @@ async def compute(self, obs_spec, obs):
         obs = dict(zip(EXPECTED_KEYS, obs))
     ...
 ```
+
+**`Perceptor.reset()` is sync; v2 awaits the return value — add `__await__` to your impl** — At episode boundaries the v2 training loop calls `await perceptor.reset()`. `Perceptor.reset()` is synchronous and returns the `PerceptorImpl` instance directly (not a coroutine), so v2 then tries to `await` that instance. Without `__await__`, this raises a warning:
+
+```
+Error resetting perceptor <name>: object <YourImpl> can't be used in 'await' expression
+```
+
+The error is caught and training continues, but the perceptor's state will not be cleanly reset between episodes. Add `__await__` to every `PerceptorImpl` subclass so the instance is awaitable and resolves as a no-op:
+
+```python
+class MyPerceptorImpl(PerceptorImpl):
+    def __await__(self):
+        async def _noop():
+            return self
+        return _noop().__await__()
+
+    async def compute(self, obs_spec, obs):
+        ...
+```

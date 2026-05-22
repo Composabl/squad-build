@@ -159,7 +159,7 @@ All `*_local` flags: `True` = start the node in-process (default for local dev).
 
 | Variable            | Required           | Description |
 | ------------------- | ------------------ | ----------- |
-| `AMESA_LICENSE`     | Yes                | License key |
+| `AMESA_LICENSE`     | Yes                | License key. In remote controller and perceptor Docker containers, `COMPOSABL_LICENSE` is accepted as a fallback if `AMESA_LICENSE` is not set. |
 | `AMESA_EULA_AGREED` | Yes (set to `"1"`) | Accept EULA |
 
 Set these before calling `trainer.train()`:
@@ -227,6 +227,10 @@ config = {
 docker run -d -p 6379:6379 redis:7-alpine redis-server --save "" --appendonly no
 ```
 
-**`train_cycles` vs `training_cycles`** — `train_cycles` is the argument to `trainer.train(agent, train_cycles=N)` — it controls the outer loop count. `training_cycles` (set on a `Skill`) controls PPO iterations per skill per cycle. Both affect total training time.
+**`train_cycles` vs `training_cycles`** — `train_cycles` is the argument to `trainer.train(agent, train_cycles=N)` — it controls the outer loop count. `training_cycles` is a **required** kwarg on `Skill(...)` that sets PPO iterations per skill per cycle. In v2, the runtime reads `training_cycles` exclusively from the skill config and raises a `ValueError` at training start if it is missing — the `train_cycles` argument to `trainer.train()` is ignored for this purpose. Always set it:
+
+```python
+skill = Skill("my-skill", MyTeacher, training_cycles=100)
+```
 
 **`trainer.close()` in a finally block** — Always call `trainer.close()` to tear down Redis consumers and any spawned processes. Omitting it can leave stale consumer groups in Redis.

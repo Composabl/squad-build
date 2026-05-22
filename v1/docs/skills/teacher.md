@@ -146,3 +146,20 @@ skill.add_scenario({"initial_pos": [0.0, 5.0], "target": 3.0})
 **`self.action_space` is not required by the trainer** — The trainer gets the action space from the sim's `action_space_info()`. `self.action_space` on the teacher is only used within your teacher methods. Set it if you need it; the trainer won't fail if it's `None`.
 
 **`filtered_sensor_space` returns names, not spaces** — Return a `list[str]`, not `list[Sensor]` objects.
+
+**`compute_reward` must return a Python `float`** — v1 uses Ray/RLlib, which validates the reward returned by the full teacher-wrapped step before training starts. Values in `transformed_sensors` are numpy scalars (e.g. `numpy.float32`); arithmetic on them produces numpy types, not Python `float`. RLlib's env checker rejects these with:
+
+```
+ValueError: Your step function must return a reward that is integer or float.
+Instead it was a <class 'numpy.ndarray'>
+```
+
+The SDK does not cast the return value of `compute_reward` before handing it to RLlib. Always wrap the return explicitly:
+
+```python
+async def compute_reward(self, transformed_sensors, action, sim_reward):
+    vel = transformed_sensors.get("vel_x", 0.0)
+    return float(sim_reward + vel * 1.5)   # float() required
+```
+
+This applies even when individual sensor values look like plain numbers — numpy arithmetic re-introduces numpy types. This restriction does not apply to v2, which uses Redis streams and has no RLlib env pre-check.

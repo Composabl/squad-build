@@ -19,6 +19,7 @@ Agent-facing reference for building components with the AMESA SDK (v1).
 | [agent.md](agent.md)                           | `Agent` — assemble everything                                   |
 | [simulator.md](simulator.md)                   | `ServerAmesa` — implement a simulator                           |
 | [trainer.md](trainer.md)                       | `Trainer` + v1 config — run training                            |
+| [inference.md](inference.md)                   | Running a trained policy from a checkpoint (standalone)         |
 | [goals.md](goals.md)                           | `ApproachGoal`, `MaximizeGoal`, … — v1 goal system              |
 
 ## Minimal v1 training checklist

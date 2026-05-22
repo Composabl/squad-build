@@ -3,7 +3,7 @@
   "repository": "Composabl/squad-build",
   "description": "Reference implementation and documentation for building AMESA agents and simulators using the AMESA SDK.",
   "python_version": "3.11.8",
-  "sdk": "amesa-core-dev==0.28.0.dev9",
+  "sdk": "amesa-core-dev==0.30.0.dev1",
   "directories": {
     "v1": {
       "description": "SDK v1 reference docs and full example. Uses Ray/RLlib training — no Redis required.",
@@ -16,18 +16,19 @@
             "simulator.md": "ServerAmesa — sim interface, server bootstrap",
             "agent.md": "Agent — construction APIs (declarative, tree, context-manager), key methods",
             "sensors.md": "Sensor — definition, lambda mapping, normalization",
-            "perceptors.md": "PerceptorImpl — observation transformation, job JSON schema for perceptors[] entries (impl, PerceptorOptions config: remote_address/sensor_space/action_space)"
+            "perceptors.md": "PerceptorImpl — observation transformation, job JSON schema for perceptors[] entries (impl, PerceptorOptions config: remote_address/sensor_space/action_space)",
             "scenarios.md": "Scenario — curriculum configuration, range sampling",
             "spaces.md": "Spaces — Box, Discrete, Dict, Tuple, MultiBinary, MultiDiscrete",
             "goals.md": "Goal system — higher-level skill objectives, alternative to manual SkillTeacher reward",
-            "training_job.md": "TrainerJobConfig — full job JSON format, all targets (local/docker/kubernetes/kubernetes_job/amesa), AgentSchema (environment_name, skill_to_train), skill serialization (remote_address on all skill types), learning/resources/model blocks, model_io, post_processing (record/benchmark), graph"
+            "training_job.md": "TrainerJobConfig — full job JSON format, all targets (local/docker/kubernetes/kubernetes_job/amesa), AgentSchema (environment_name, skill_to_train), skill serialization (remote_address on all skill types), learning/resources/model blocks, model_io, post_processing (record/benchmark), graph",
+            "inference.md": "Running a trained policy from a checkpoint — Policy.from_checkpoint (not PPO.from_checkpoint), compute_single_action pattern"
           },
           "subdirectories": {
             "skills": {
               "description": "Per-skill-type documentation.",
               "files": {
                 "overview.md": "Skill types and implementation types — v1 support matrix",
-                "teacher.md": "SkillTeacher — required and optional methods, action_space, quirks",
+                "teacher.md": "SkillTeacher — required and optional methods, action_space, quirks (compute_reward must return Python float in v1)",
                 "controller.md": "SkillController — required methods, compute_action, quirks",
                 "selector.md": "SkillSelector — constructor, children, fixed_order, repeat",
                 "group.md": "SkillGroup — two-skill pipeline",
@@ -74,11 +75,11 @@
           "description": "SDK v2 reference documentation. Ground-truth for v2 API usage, component interfaces, config, and quirks. Prefer these over distilled_docs or schemas when they conflict.",
           "files": {
             "README.md": "Documentation index",
-            "trainer.md": "Trainer — v2 config reference, Redis-stream event-based training loop",
+            "trainer.md": "Trainer — v2 config reference, Redis-stream event-based training loop; training_cycles required on Skill (raises ValueError if absent); COMPOSABL_LICENSE accepted as alias for AMESA_LICENSE in remote Docker containers",
             "simulator.md": "ServerAmesa — sim interface, server bootstrap, Dockerfile pattern, Docker env vars",
             "agent.md": "Agent — construction APIs (declarative, tree, context-manager), key methods",
             "sensors.md": "Sensor — definition, lambda mapping, normalization",
-            "perceptors.md": "PerceptorImpl — observation transformation, v2 opt-in requirement, job JSON schema for perceptors[] entries (impl, PerceptorOptions config: remote_address/sensor_space/action_space)",
+            "perceptors.md": "PerceptorImpl — observation transformation, v2 opt-in requirement, __await__ required on PerceptorImpl subclasses for v2 episode reset, job JSON schema for perceptors[] entries (impl, PerceptorOptions config: remote_address/sensor_space/action_space)",
             "scenarios.md": "Scenario — curriculum configuration, range sampling",
             "spaces.md": "Spaces — Box, Discrete, Dict, Tuple, MultiBinary, MultiDiscrete",
             "training_job.md": "TrainerJobConfig — full job JSON format, v2 target only, AgentSchema (environment_name, skill_to_train), skill serialization (remote_address on all skill types), learning/resources/model blocks, model_io, post_processing (record/benchmark), graph"
@@ -105,9 +106,9 @@
             "agent": {
               "description": "Agent-side code: skills, perceptors, teacher, and training runner.",
               "files": {
-                "build_agent.py": "Assembles and registers the Agent with all skills and perceptors",
-                "config.py": "Training hyperparameters and agent configuration",
-                "perceptors.py": "Perceptor implementations for the greenhouse agent",
+                "build_agent.py": "Assembles and registers the Agent with all skills and perceptors — Skill includes training_cycles kwarg",
+                "config.py": "Training hyperparameters and agent configuration — includes TRAINING_CYCLES_PER_SKILL",
+                "perceptors.py": "Perceptor implementations for the greenhouse agent — ClimateDeltaPerceptor includes __await__ for v2 episode reset",
                 "teacher.py": "SkillTeacher — reward, success, and termination logic",
                 "run_training_local.py": "Entry point for running a training job locally",
                 "requirements.txt": "Agent Python dependencies (redis)"

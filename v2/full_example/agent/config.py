@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict
 
 TRAIN_CYCLES = 10
+TRAINING_CYCLES_PER_SKILL = 100
 INITIAL_REPLICAS = 8
 NUM_EPISODE_MANAGERS = 4
 ENABLE_EVALUATION = False
