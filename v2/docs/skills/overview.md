@@ -4,22 +4,22 @@ A **Skill** is the fundamental unit of an agent. Each skill encapsulates one lea
 
 ## Skill types
 
-| Type | Class | Use | v2 |
-|---|---|---|---|
-| **Skill** | `Skill` | A single ability — one teacher or controller | ✅ |
-| **Selector** | `SkillSelector` | Chooses which child skill to run each step | ✅ |
-| **Group** | `SkillGroup` | Pipelines two skills: output of first → input of second | ✅ |
-| **Coordinated** | `SkillCoordinatedSet` / `SkillCoordinatedPopulation` | Multi-agent: a coach directs a set of skills | ❌ not yet |
+| Type            | Class                                                | Use                                                     | v2         |
+| --------------- | ---------------------------------------------------- | ------------------------------------------------------- | ---------- |
+| **Skill**       | `Skill`                                              | A single ability — one teacher or controller            | ✅         |
+| **Selector**    | `SkillSelector`                                      | Chooses which child skill to run each step              | ✅         |
+| **Group**       | `SkillGroup`                                         | Pipelines two skills: output of first → input of second | ✅         |
+| **Coordinated** | `SkillCoordinatedSet` / `SkillCoordinatedPopulation` | Multi-agent: a coach directs a set of skills            | ❌ not yet |
 
 ## Implementation types
 
 Each `Skill` or `SkillSelector` is backed by exactly one implementation class:
 
-| Implementation | Base class | Description |
-|---|---|---|
-| **Teacher** | `SkillTeacher` | Machine-learned via RL — you define reward, success, action transform |
-| **Controller** | `SkillController` | Deterministic / rule-based — you compute the action directly |
-| **Coach** | `SkillCoach` | Used with `SkillCoordinated` — coordinates multiple sub-skills |
+| Implementation | Base class        | Description                                                           |
+| -------------- | ----------------- | --------------------------------------------------------------------- |
+| **Teacher**    | `SkillTeacher`    | Machine-learned via RL — you define reward, success, action transform |
+| **Controller** | `SkillController` | Deterministic / rule-based — you compute the action directly          |
+| **Coach**      | `SkillCoach`      | Used with `SkillCoordinated` — coordinates multiple sub-skills        |
 
 The SDK infers the implementation type from the class you pass:
 
@@ -43,14 +43,14 @@ skill.add_scenario(my_scenario)
 
 ### Common kwargs
 
-| kwarg | Applies to | Effect |
-|---|---|---|
-| `training_cycles` | Teacher/Selector | Override training cycles for this skill |
-| `train_batch_size` | Teacher/Selector | Override PPO batch size |
-| `fc_layers` | Teacher/Selector | Override fully-connected layer sizes |
-| `workers` | Teacher/Selector | Number of rollout workers |
-| `envs_per_worker` | Teacher/Selector | Envs per rollout worker |
-| `custom_action_space` | Teacher/Selector | Override inferred action space |
+| kwarg                 | Applies to       | Effect                                  |
+| --------------------- | ---------------- | --------------------------------------- |
+| `training_cycles`     | Teacher/Selector | Override training cycles for this skill |
+| `train_batch_size`    | Teacher/Selector | Override PPO batch size                 |
+| `fc_layers`           | Teacher/Selector | Override fully-connected layer sizes    |
+| `workers`             | Teacher/Selector | Number of rollout workers               |
+| `envs_per_worker`     | Teacher/Selector | Envs per rollout worker                 |
+| `custom_action_space` | Teacher/Selector | Override inferred action space          |
 
 ## Adding scenarios
 

@@ -22,8 +22,14 @@ async def compute_termination(self, transformed_sensors: dict, action) -> bool
 async def transform_sensors(self, sensors, action) -> dict
 # Default: return sensors unchanged
 
-async def compute_action_mask(self, transformed_sensors: dict, action) -> list[bool] | None
+async def compute_action_mask(self, transformed_sensors: dict, action) -> list | tuple | None
 # Default: return None  ← no masking
+# Return type depends on the action space — the trainer calls space.fit_mask() on the result.
+# Discrete(n):       list/array of length n  (1 = allowed, 0 = masked)
+# Box(shape=(N,)):   list/array of length N*2  (mean0, std0, mean1, std1, … per dimension)
+# MultiDiscrete:     flat array or tuple of per-subspace arrays
+# Tuple(spaces):     tuple/list with one mask element per subspace
+# See docs/spaces.md → "Action masks" for full shape requirements.
 ```
 
 ## Full interface

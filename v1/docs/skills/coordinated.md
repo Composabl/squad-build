@@ -118,6 +118,61 @@ finally:
 
 ---
 
+## Job JSON schema
+
+Each entry in `skills_coordinated[]` in the agent JSON follows `SkillCoordinatedSchema`. The `type` is either `"SkillCoordinatedSet"` or `"SkillCoordinatedPopulation"`.
+
+```json
+{
+  "name": "team-skill",
+  "type": "SkillCoordinatedSet",
+  "config": {
+    "remote_address": null,
+    "impl_cls": {
+      "cls_name": "MyCoach",
+      "cls_module": "my_agent.coach",
+      "cls_src": "<base64-pickle>",
+      "cls_deps": []
+    },
+    "impl_cls_data": { "guidance": null, "goals": [], "constraints": null },
+    "learning": {
+      "training_cycles": null,
+      "train_batch_size": 4000,
+      "replay_buffer_size": 50000,
+      "rl_algo": "PPO"
+    },
+    "resources": {
+      "workers": 1,
+      "learner_workers": 0,
+      "envs_per_worker": 1
+    },
+    "model": {
+      "checkpoint_uri": "/tmp/amesa",
+      "fc_layers": [256, 256]
+    },
+    "model_io": {},
+    "scenarios": [],
+    "scenarios_current_idx": 0,
+    "skills": []
+  }
+}
+```
+
+| Field                | Default  | Description                                                            |
+| -------------------- | -------- | ---------------------------------------------------------------------- |
+| `remote_address`     | `null`   | URL of a remotely-hosted coach; when set, `impl_cls` is ignored        |
+| `impl_cls`           | —        | Serialized coach class (produced by `Agent.export()`)                  |
+| `impl_cls_data`      | —        | Guidance, goals, and constraints attached to the coach                 |
+| `learning`           | —        | PPO hyperparameters (same fields as `SkillTeacher`; see training_job.md) |
+| `resources`          | —        | Worker/compute allocation (same fields as `SkillTeacher`)              |
+| `model`              | —        | Checkpoint and network architecture config                             |
+| `model_io`           | —        | Sensor and action space definitions                                    |
+| `scenarios`          | `[]`     | Scenarios to cycle through during training                             |
+| `scenarios_current_idx` | `0`   | Index of the currently active scenario                                 |
+| `skills`             | `[]`     | Serialized child skills managed by this coordinated set                |
+
+---
+
 ## ⚠️ Quirks
 
 **`compute_reward` returns a dict** — Keys must match the names of the child skills exactly.

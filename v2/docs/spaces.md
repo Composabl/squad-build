@@ -63,6 +63,47 @@ amesa_space = convert_to_amesa_space(gym_space)
 
 ---
 
+## Action masks
+
+Each AMESA space implements `fit_mask(mask)`, which formats a raw mask into the structure required by the trainer. The skill processor calls this automatically on the value returned by `compute_action_mask`, so you generally do not call `fit_mask` directly — but you must return a mask in the correct shape for your action space type.
+
+| Space | Expected mask input | Output shape |
+|---|---|---|
+| `Discrete(n)` | Any array-like of length `n` | `(n,)` int8 array |
+| `Box(shape)` | Array with last dim doubled | `(*shape[:-1], shape[-1] * 2)` — one mean + one std per dimension |
+| `MultiDiscrete(nvec)` | Flat array or tuple of per-subspace arrays | Tuple of int8 arrays, one per subspace |
+| `Tuple(spaces)` | `tuple` or `list` of per-subspace masks | Tuple of recursively fitted masks |
+
+### Box mask shape
+
+For a `Box(low, high, shape=(N,))`, the mask must have shape `(N * 2,)` — the trainer interprets alternating values as (mean-enabled, std-enabled) pairs per dimension. Returning a plain `list[bool]` of length `N` will raise a `ValueError`.
+
+```python
+# Box(shape=(3,)) → mask must be shape (6,): [mean0, std0, mean1, std1, mean2, std2]
+async def compute_action_mask(self, transformed_sensors, action):
+    return [1, 1, 1, 1, 0, 0]  # mask out last dimension
+```
+
+### Discrete mask
+
+```python
+# Discrete(4) → mask shape (4,): 1 = action allowed, 0 = masked
+async def compute_action_mask(self, transformed_sensors, action):
+    return [1, 1, 0, 0]  # only actions 0 and 1 are available
+```
+
+### Tuple / MultiDiscrete mask
+
+Pass a `tuple` or `list` with one element per subspace:
+
+```python
+# Tuple([Discrete(3), Discrete(2)]) → ([mask_for_d3], [mask_for_d2])
+async def compute_action_mask(self, transformed_sensors, action):
+    return ([1, 0, 1], [1, 1])
+```
+
+---
+
 ## ⚠️ Quirks
 
 **`shape` is required for `Box`** — Always pass an explicit `shape` tuple. Omitting it can cause unexpected broadcasting.

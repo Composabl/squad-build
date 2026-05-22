@@ -104,6 +104,34 @@ async def compute(self, obs_spec, obs):
 
 ---
 
+## Job JSON schema
+
+In the serialized agent JSON, each perceptor entry has this shape:
+
+```json
+{
+  "name": "my-perceptor",
+  "description": "...",
+  "impl": {
+    "cls_name": "MyPerceptor",
+    "cls_module": "my_agent.perceptor",
+    "cls_src": "<base64-pickle>",
+    "cls_deps": []
+  },
+  "config": "{\"remote_address\": null, \"sensor_space\": null, \"action_space\": null}"
+}
+```
+
+`impl` is the serialized class (produced by `Agent.export()`). `config` is a **JSON-encoded string** of `PerceptorOptions`:
+
+| Field            | Default | Description                                                            |
+| ---------------- | ------- | ---------------------------------------------------------------------- |
+| `remote_address` | `null`  | URL of a remotely-hosted perceptor; when set, `impl` class is ignored  |
+| `sensor_space`   | `null`  | Sensor space specification string (rarely set manually)                |
+| `action_space`   | `null`  | Action space specification string (rarely set manually)                |
+
+---
+
 ## ⚠️ Quirks
 
 **Class, not instance** — Pass the **class** to `Perceptor(...)`, not an instance. The SDK instantiates it internally.
