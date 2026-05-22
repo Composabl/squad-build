@@ -1,6 +1,6 @@
 from amesa_core.networking.sim.server_amesa import ServerAmesa
 
-from sim.sim import GreenhouseSim
+from v2.full_example.sim.sim import GreenhouseSim
 
 
 class SimImpl(ServerAmesa):

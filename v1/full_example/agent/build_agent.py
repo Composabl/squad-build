@@ -2,9 +2,10 @@ from amesa_core.agent.agent import Agent
 from amesa_core.agent.sensors.sensor import Sensor
 from amesa_core.agent.skill.skill import Skill
 
-from full_example.agent.perceptors import CLIMATE_PERCEPTOR
-from full_example.agent.teacher import GreenhouseTeacher
-from full_example.sim.scenarios import GREENHOUSE_SCENARIOS
+from v1.full_example.agent.perceptors import CLIMATE_PERCEPTOR
+from v1.full_example.agent.teacher import GreenhouseTeacher
+from v1.full_example.sim.scenarios import GREENHOUSE_SCENARIOS
+from v1.full_example.agent.config import TRAINING_CYCLES_PER_SKILL, TRAIN_BATCH_SIZE, WORKERS, ENVS_PER_WORKER
 
 
 def build_agent() -> Agent:
@@ -25,6 +26,10 @@ def build_agent() -> Agent:
     skill = Skill(
         "greenhouse-climate",
         GreenhouseTeacher,
+        training_cycles=TRAINING_CYCLES_PER_SKILL,
+        train_batch_size=TRAIN_BATCH_SIZE,
+        workers=WORKERS,
+        envs_per_worker=ENVS_PER_WORKER,
     )
     for scenario in GREENHOUSE_SCENARIOS:
         skill.add_scenario(scenario)

@@ -23,7 +23,7 @@ async def action_space_sample(self) -> any
 async def reset(self) -> tuple[any, dict]
 async def step(self, action) -> tuple[any, float, bool, bool, dict]
 async def close(self) -> None
-async def set_scenario(self, scenario: dict) -> None
+async def set_scenario(self, scenario) -> None
 async def get_scenario(self) -> any
 async def get_render(self, render_mode) -> any
 ```
@@ -34,11 +34,11 @@ async def get_render(self, render_mode) -> any
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `make`                | Called once at startup. Apply `env_init` configuration here. Return an `EnvSpec`-compatible dict with `{"id": ..., "max_episode_steps": ...}` or a real `EnvSpec`. |
 | `sensor_space_info`   | Return the gymnasium (or amesa) `Space` describing observations.                                                                                                   |
-| `action_space_info`   | Return the gymnasium `Space` describing actions. **This is the authoritative action space source for v2 training.**                                                |
+| `action_space_info`   | Return the gymnasium `Space` describing actions. **This is the authoritative action space source for the trainer.**                                                |
 | `action_space_sample` | Return one random action sample from the action space.                                                                                                             |
 | `reset`               | Reset the environment. Return `(obs_dict, info_dict)`. Gymnasium 0.26+ signature.                                                                                  |
 | `step`                | Apply `action`. Return `(obs, reward, terminated, truncated, info)`.                                                                                               |
-| `set_scenario`        | Apply the sampled scenario dict to the environment state. Called before each episode.                                                                              |
+| `set_scenario`        | Apply the scenario to the environment state. Called before each episode. Receives a `Scenario` object — call `.sample()` to get a plain `dict` of scalar values.   |
 | `get_scenario`        | Return the current scenario dict (used for logging/debugging).                                                                                                     |
 | `get_render`          | Return a rendered frame or `None`. Takes a `render_mode` argument.                                                                                                 |
 
@@ -77,8 +77,8 @@ class MySimImpl(ServerAmesa):
     async def close(self):
         self.env.close()
 
-    async def set_scenario(self, scenario: dict):
-        self.env.set_scenario(scenario)
+    async def set_scenario(self, scenario):
+        self.env.set_scenario(scenario.sample() if hasattr(scenario, "sample") else scenario)
 
     async def get_scenario(self):
         return self.env.get_scenario()
@@ -152,9 +152,9 @@ server_make.make(
 
 Returns a `ServerGRPC` or `ServerHTTP` instance; call `.start()` to begin serving.
 
-## v2: packaging as a Docker image
+## Packaging as a Docker image
 
-In v2 training with `sim_node_local=False`, the trainer spawns the sim as a Docker container. The container must expose a gRPC server on port `1337`.
+When using the `docker` or `kubernetes` trainer targets, the trainer spawns the sim as a Docker container. The container must expose a gRPC server on port `1337`.
 
 ### Dockerfile pattern
 
@@ -183,15 +183,16 @@ CMD ["python", "server.py"]
 | `PORT`     | `1337`    | gRPC port inside the container                                            |
 | `PROTOCOL` | `grpc`    | Transport protocol (`grpc` or `http`)                                     |
 | `ENV_INIT` | `{}`      | JSON string merged into `env_init` at startup (passed to `make()`)        |
+| `AMESA_ENV` | host value | AMESA backend environment (`STAGING`, `TEST`, `PROD`). Automatically forwarded from the host process — do not set this on the container directly. |
 
 The trainer config references the image by name:
 
 ```python
 config = {
     "target": {
-        "v2": {
-            "sim_image": "my-sim:latest",  # Docker image tag
-            "sim_node_local": False,        # False = spawn containers
+        "docker": {
+            "image": "my-sim:latest",
+            "protocol": "grpc",
         }
     }
 }
@@ -226,10 +227,8 @@ numpy==1.26.4
 
 **`reset` must return a tuple** — `(obs, info_dict)` matching gymnasium 0.26+ API. Older gymnasium style (returning obs only) will cause protocol errors.
 
-**`set_scenario` receives sampled scalars** — Range values in scenarios are resolved before `set_scenario` is called. The dict you receive contains only concrete scalar values.
+**`set_scenario` receives a `Scenario` object** — Call `.sample()` on it to get a plain `dict` of resolved scalar values. Use `hasattr(scenario, "sample")` to guard against plain dicts if you need the sim to work in both contexts.
 
 **`env_init` vs `set_scenario`** — `env_init` is passed once at server startup via `make()`. `set_scenario` is called before each episode. Use `env_init` for static configuration (e.g., max steps), scenarios for per-episode variation.
 
 **Docker host is always `0.0.0.0`** — Inside a Docker container the server must bind to `0.0.0.0`, not `127.0.0.1`. The trainer connects to the published port on the host machine.
-
-**`sim_node_local=True` skips Docker** — When `sim_node_local=True`, the sim is started in-process and `sim_image` is ignored. Use this for development when you don't need container isolation.

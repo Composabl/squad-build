@@ -9,8 +9,8 @@ import redis
 from redis import exceptions as redis_exceptions
 from amesa_train.trainer import Trainer
 
-from full_example.agent.build_agent import build_agent
-from full_example.agent.config import AUTO_START_REDIS, REDIS_URL, TRAIN_CYCLES, build_trainer_config
+from v2.full_example.agent.build_agent import build_agent
+from v2.full_example.agent.config import AUTO_START_REDIS, REDIS_URL, TRAIN_CYCLES, build_trainer_config
 
 
 def _redis_port(redis_url: str) -> int:

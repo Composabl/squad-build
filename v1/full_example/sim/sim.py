@@ -3,7 +3,7 @@ from __future__ import annotations
 import gymnasium as gym
 import numpy as np
 
-from sim.scenarios import materialize_scenario
+from v1.full_example.sim.scenarios import materialize_scenario
 
 
 class GreenhouseSim(gym.Env):
@@ -44,10 +44,10 @@ class GreenhouseSim(gym.Env):
         self._apply_scenario()
         return {"id": "greenhouse_sim", "max_episode_steps": self.max_steps}
 
-    def sensor_space_info(self) -> gym.Space:
+    def sensor_space_info(self):
         return self.observation_space
 
-    def action_space_info(self) -> gym.Space:
+    def action_space_info(self):
         return self.action_space
 
     def action_space_sample(self):
@@ -93,8 +93,11 @@ class GreenhouseSim(gym.Env):
     def close(self):
         return None
 
-    def set_scenario(self, scenario: dict):
-        self.scenario = materialize_scenario(scenario) if scenario else {}
+    def set_scenario(self, scenario):
+        if scenario:
+            self.scenario = scenario.sample() if hasattr(scenario, "sample") else dict(scenario)
+        else:
+            self.scenario = {}
         self.max_steps = int(self.scenario.get("max_steps", self.max_steps))
         self._apply_scenario()
 

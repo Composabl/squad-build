@@ -8,7 +8,7 @@ from typing import Any, Dict
 
 from amesa_core.networking.sim import server as server_make
 
-from sim.server_impl import SimImpl
+from v1.full_example.sim.server_impl import SimImpl
 
 
 def _parse_env_init(raw: str) -> Dict[str, Any]:

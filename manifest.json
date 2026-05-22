@@ -5,64 +5,129 @@
   "python_version": "3.11.8",
   "sdk": "amesa-core-dev==0.28.0.dev9",
   "directories": {
-    "docs": {
-      "description": "Primary SDK reference documentation. Ground-truth for v2 API usage, component interfaces, config, and quirks. Prefer these over distilled_docs or schemas when they conflict.",
-      "files": {
-        "README.md": "Documentation index",
-        "trainer.md": "Trainer — v2 config reference, all fields and defaults, training loop",
-        "simulator.md": "ServerAmesa — sim interface, server bootstrap, Dockerfile pattern, Docker env vars",
-        "agent.md": "Agent — construction APIs (declarative, tree, context-manager), key methods",
-        "sensors.md": "Sensor — definition, lambda mapping, normalization",
-        "perceptors.md": "PerceptorImpl — observation transformation, v2 opt-in requirement",
-        "scenarios.md": "Scenario — curriculum configuration, range sampling",
-        "spaces.md": "Spaces — Box, Discrete, Dict, Tuple, MultiBinary, MultiDiscrete",
-        "troubleshooting.md": "Common errors and fixes"
-      },
+    "v1": {
+      "description": "SDK v1 reference docs and full example. Uses Ray/RLlib training — no Redis required.",
       "subdirectories": {
-        "skills": {
-          "description": "Per-skill-type documentation.",
+        "docs": {
+          "description": "SDK v1 reference documentation.",
           "files": {
-            "overview.md": "Skill types and implementation types — v2 support matrix",
-            "teacher.md": "SkillTeacher — required and optional methods, action_space, quirks",
-            "controller.md": "SkillController — required methods, compute_action, quirks",
-            "selector.md": "SkillSelector — constructor, children, fixed_order, repeat",
-            "group.md": "SkillGroup — two-skill pipeline, v2 supported",
-            "coordinated.md": "SkillCoach / SkillCoordinatedSet — NOT available in v2"
+            "README.md": "Documentation index",
+            "trainer.md": "Trainer — v1 config reference, Ray/RLlib-based training loop",
+            "simulator.md": "ServerAmesa — sim interface, server bootstrap",
+            "agent.md": "Agent — construction APIs (declarative, tree, context-manager), key methods",
+            "sensors.md": "Sensor — definition, lambda mapping, normalization",
+            "perceptors.md": "PerceptorImpl — observation transformation",
+            "scenarios.md": "Scenario — curriculum configuration, range sampling",
+            "spaces.md": "Spaces — Box, Discrete, Dict, Tuple, MultiBinary, MultiDiscrete",
+            "goals.md": "Goal system — higher-level skill objectives, alternative to manual SkillTeacher reward"
+          },
+          "subdirectories": {
+            "skills": {
+              "description": "Per-skill-type documentation.",
+              "files": {
+                "overview.md": "Skill types and implementation types — v1 support matrix",
+                "teacher.md": "SkillTeacher — required and optional methods, action_space, quirks",
+                "controller.md": "SkillController — required methods, compute_action, quirks",
+                "selector.md": "SkillSelector — constructor, children, fixed_order, repeat",
+                "group.md": "SkillGroup — two-skill pipeline",
+                "coordinated.md": "SkillCoach / SkillCoordinatedSet"
+              }
+            }
+          }
+        },
+        "full_example": {
+          "description": "Complete end-to-end v1 example: a greenhouse climate simulator paired with a multi-skill agent.",
+          "entrypoint": "v1/full_example/agent/run_training_local.py",
+          "subdirectories": {
+            "agent": {
+              "description": "Agent-side code: skills, perceptors, teacher, and training runner.",
+              "files": {
+                "build_agent.py": "Assembles and registers the Agent with all skills and perceptors",
+                "config.py": "Training hyperparameters and agent configuration",
+                "perceptors.py": "Perceptor implementations for the greenhouse agent",
+                "teacher.py": "SkillTeacher — reward, success, and termination logic",
+                "run_training_local.py": "Entry point for running a training job locally"
+              }
+            },
+            "sim": {
+              "description": "Simulator-side code: ServerAmesa implementation, scenarios, and local runner.",
+              "files": {
+                "sim.py": "Core simulation logic",
+                "server_impl.py": "ServerAmesa subclass wiring the sim to AMESA gRPC",
+                "server.py": "gRPC server bootstrap",
+                "scenarios.py": "Scenario definitions for curriculum training",
+                "run_local.py": "Entry point for running the simulator locally"
+              }
+            }
+          },
+          "files": {
+            "pyproject.toml": "Package metadata"
           }
         }
       }
     },
-    "full_example": {
-      "description": "Complete end-to-end AMESA example: a greenhouse climate simulator paired with a multi-skill agent.",
-      "entrypoint": "full_example/agent/run_training_local.py",
-      "docker": "full_example/Dockerfile",
+    "v2": {
+      "description": "SDK v2 reference docs and full example. Uses Redis-stream event-based training architecture.",
       "subdirectories": {
-        "agent": {
-          "description": "Agent-side code: skills, perceptors, teacher, and training runner.",
+        "docs": {
+          "description": "SDK v2 reference documentation. Ground-truth for v2 API usage, component interfaces, config, and quirks. Prefer these over distilled_docs or schemas when they conflict.",
           "files": {
-            "build_agent.py": "Assembles and registers the Agent with all skills and perceptors",
-            "config.py": "Training hyperparameters and agent configuration",
-            "perceptors.py": "Perceptor implementations for the greenhouse agent",
-            "teacher.py": "SkillTeacher — reward, success, and termination logic",
-            "run_training_local.py": "Entry point for running a training job locally",
-            "requirements.txt": "Agent Python dependencies (redis)"
+            "README.md": "Documentation index",
+            "trainer.md": "Trainer — v2 config reference, Redis-stream event-based training loop",
+            "simulator.md": "ServerAmesa — sim interface, server bootstrap, Dockerfile pattern, Docker env vars",
+            "agent.md": "Agent — construction APIs (declarative, tree, context-manager), key methods",
+            "sensors.md": "Sensor — definition, lambda mapping, normalization",
+            "perceptors.md": "PerceptorImpl — observation transformation, v2 opt-in requirement",
+            "scenarios.md": "Scenario — curriculum configuration, range sampling",
+            "spaces.md": "Spaces — Box, Discrete, Dict, Tuple, MultiBinary, MultiDiscrete"
+          },
+          "subdirectories": {
+            "skills": {
+              "description": "Per-skill-type documentation.",
+              "files": {
+                "overview.md": "Skill types and implementation types — v2 support matrix",
+                "teacher.md": "SkillTeacher — required and optional methods, action_space, quirks",
+                "controller.md": "SkillController — required methods, compute_action, quirks",
+                "selector.md": "SkillSelector — constructor, children, fixed_order, repeat",
+                "group.md": "SkillGroup — two-skill pipeline, v2 supported",
+                "coordinated.md": "SkillCoach / SkillCoordinatedSet — NOT available in v2"
+              }
+            }
           }
         },
-        "sim": {
-          "description": "Simulator-side code: ServerAmesa implementation, scenarios, and local runner.",
+        "full_example": {
+          "description": "Complete end-to-end v2 example: a greenhouse climate simulator paired with a multi-skill agent.",
+          "entrypoint": "v2/full_example/agent/run_training_local.py",
+          "docker": "v2/full_example/Dockerfile",
+          "subdirectories": {
+            "agent": {
+              "description": "Agent-side code: skills, perceptors, teacher, and training runner.",
+              "files": {
+                "build_agent.py": "Assembles and registers the Agent with all skills and perceptors",
+                "config.py": "Training hyperparameters and agent configuration",
+                "perceptors.py": "Perceptor implementations for the greenhouse agent",
+                "teacher.py": "SkillTeacher — reward, success, and termination logic",
+                "run_training_local.py": "Entry point for running a training job locally",
+                "requirements.txt": "Agent Python dependencies (redis)"
+              }
+            },
+            "sim": {
+              "description": "Simulator-side code: ServerAmesa implementation, scenarios, and local runner.",
+              "files": {
+                "sim.py": "Core simulation logic",
+                "server_impl.py": "ServerAmesa subclass wiring the sim to AMESA gRPC",
+                "server.py": "gRPC server bootstrap",
+                "scenarios.py": "Scenario definitions for curriculum training",
+                "run_local.py": "Entry point for running the simulator locally",
+                "requirements.txt": "Simulator Python dependencies"
+              }
+            }
+          },
           "files": {
-            "sim.py": "Core simulation logic",
-            "server_impl.py": "ServerAmesa subclass wiring the sim to AMESA gRPC",
-            "server.py": "gRPC server bootstrap",
-            "scenarios.py": "Scenario definitions for curriculum training",
-            "run_local.py": "Entry point for running the simulator locally",
-            "requirements.txt": "Simulator Python dependencies"
+            "Dockerfile": "Multi-stage Docker image for the simulator",
+            "pyproject.toml": "Package metadata (amesa-greenhouse-sim v0.1.0)"
           }
         }
-      },
-      "files": {
-        "pyproject.toml": "Package metadata (amesa-greenhouse-sim v0.1.0)",
-        "run.md": "Instructions to build Docker image and run training"
       }
     }
   },
