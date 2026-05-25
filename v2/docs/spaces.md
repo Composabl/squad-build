@@ -71,8 +71,9 @@ Each AMESA space implements `fit_mask(mask)`, which formats a raw mask into the 
 |---|---|---|
 | `Discrete(n)` | Any array-like of length `n` | `(n,)` int8 array |
 | `Box(shape)` | Array with last dim doubled | `(*shape[:-1], shape[-1] * 2)` — one mean + one std per dimension |
-| `MultiDiscrete(nvec)` | Flat array or tuple of per-subspace arrays | Tuple of int8 arrays, one per subspace |
+| `MultiDiscrete(nvec)` | Flat array, tuple, or list of per-subspace arrays | Tuple of int8 arrays, one per subspace |
 | `Tuple(spaces)` | `tuple` or `list` of per-subspace masks | Tuple of recursively fitted masks |
+| `Dict(spaces)` | `dict` with one mask value per key (recursively fitted) | Dict of recursively fitted masks |
 
 ### Box mask shape
 
@@ -111,3 +112,5 @@ async def compute_action_mask(self, transformed_sensors, action):
 **Action space in Teacher** — `self.action_space` must be set in `__init__`, not lazily. The trainer reads it at initialization time.
 
 **`Box(low, high, shape)` vs gymnasium** — Positional argument order matches gymnasium: `low`, `high`, `shape`, `dtype`. dtype defaults to `float32`.
+
+**`Text` spaces are excluded from observations and training** — Sensors backed by a `Text` space are silently dropped from filtered observation spaces and stripped from the policy observation space before training. Listing a Text sensor in `filtered_sensor_space()` will not cause an error, but the key will never appear in `transformed_sensors` and cannot be used in reward or termination logic.

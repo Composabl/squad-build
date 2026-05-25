@@ -22,14 +22,21 @@ async def compute_termination(self, transformed_sensors: dict, action) -> bool
 async def transform_sensors(self, sensors, action) -> dict
 # Default: return sensors unchanged
 
-async def compute_action_mask(self, transformed_sensors: dict, action) -> list | tuple | None
+async def compute_action_mask(self, transformed_sensors: dict, action) -> list | tuple | dict | None
 # Default: return None  ← no masking
 # Return type depends on the action space — the trainer calls space.fit_mask() on the result.
 # Discrete(n):       list/array of length n  (1 = allowed, 0 = masked)
 # Box(shape=(N,)):   list/array of length N*2  (mean0, std0, mean1, std1, … per dimension)
-# MultiDiscrete:     flat array or tuple of per-subspace arrays
+# MultiDiscrete:     flat array, tuple, or list of per-subspace arrays
 # Tuple(spaces):     tuple/list with one mask element per subspace
+# Dict(spaces):      dict with one mask value per key (recursively fitted)
 # See docs/spaces.md → "Action masks" for full shape requirements.
+
+async def get_custom_action_space(self) -> Space | None
+# Default: return None  ← use the sim's native action space
+# Override to return a custom action space (e.g. Box, Discrete, Dict) that the
+# policy trains with instead of the space reported by the sim's action_space_info().
+# Works for both local and remote teachers.
 ```
 
 ## Full interface
@@ -102,23 +109,29 @@ skill = Skill(
 )
 ```
 
-## Setting action_space
+## Custom action space
 
-`self.action_space` on the teacher instance is available for use **within your teacher methods** — for example, sampling a fallback action in `transform_action`. The trainer itself gets the action space from the sim's `action_space_info()` and does not read it from the teacher.
-
-Set it in `__init__` if you need it internally:
+By default the trainer uses the action space reported by the sim's `action_space_info()`. To override this, implement `get_custom_action_space()` on your teacher:
 
 ```python
-self.action_space = Box(low=-1.0, high=1.0, shape=(1,))   # single continuous
-self.action_space = Discrete(3)                              # 3 discrete choices
-self.action_space = Box(low=0.0, high=1.0, shape=(4,))     # 4-element vector
+from amesa_core.spaces import Box
+
+class MyTeacher(SkillTeacher):
+    async def get_custom_action_space(self):
+        return Box(low=-1.0, high=1.0, shape=(1,))
 ```
 
-If you need the trainer to use a custom action space different from what the sim reports, pass `custom_action_space=...` to the `Skill` constructor instead:
+This is the preferred pattern. It works for both local and remote teachers. The custom space is preserved across rollout worker sync and takes priority over the sim's reported space.
+
+`self.action_space` set in `__init__` is available for use **within your teacher methods** (e.g. `self.action_space.sample()` in `transform_action`), but the trainer does **not** read it — use `get_custom_action_space()` to influence training.
+
+As a fallback, you can also pass `custom_action_space=` to the `Skill` constructor:
 
 ```python
 Skill("my-skill", MyTeacher, custom_action_space=Box(low=-1.0, high=1.0, shape=(1,)))
 ```
+
+> **Note:** `custom_action_space=` is not supported as a `SkillSelector` constructor kwarg. Use `get_custom_action_space()` on the selector's teacher instead.
 
 ## Adding a scenario
 
@@ -143,7 +156,7 @@ skill.add_scenario({"initial_pos": [0.0, 5.0], "target": 3.0})
 
 **`training_cycles` (on Skill) vs `train_cycles` (on Trainer.train)** — `training_cycles` is the number of PPO update iterations per skill per outer cycle. `train_cycles` is the argument to `trainer.train(agent, train_cycles=N)` and controls how many outer loops run. Both affect total training time; they are independent.
 
-**`self.action_space` is not required by the trainer** — The trainer gets the action space from the sim's `action_space_info()`. `self.action_space` on the teacher is only used within your teacher methods. Set it if you need it; the trainer won't fail if it's `None`.
+**`self.action_space` is not the trainer's action space** — `self.action_space` set in `__init__` is only available within your teacher methods (e.g. for sampling in `transform_action`). The trainer uses the sim's `action_space_info()` by default. To override the trainer's action space, implement `get_custom_action_space()` — see the "Custom action space" section above.
 
 **`filtered_sensor_space` returns names, not spaces** — Return a `list[str]`, not `list[Sensor]` objects.
 

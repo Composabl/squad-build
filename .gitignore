@@ -1,13 +1,9 @@
-.claude/
-.copilot/
-.github/
 .pytest_cache/
 .ruff_cache/
-.squad/
 .venv/
 
 **/__pycache__/
 
-.gitattributes
-
 .env
+
+README_deprecated.md

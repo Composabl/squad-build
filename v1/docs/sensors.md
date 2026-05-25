@@ -69,3 +69,5 @@ Sensor("v", sensor_mapping="lambda s: s['v']")
 ```
 
 **Dict-style access in lambdas** — Inside the lambda, the observation is wrapped in an `AttrDict`, so both `s["key"]` and `s.key` work.
+
+**`Text`-typed sensors are silently excluded** — If a sensor's space type is `Text`, it is automatically dropped from filtered observation spaces and never reaches `transformed_sensors`. It also cannot be used in training (the policy observation space strips it out). Do not list a Text sensor in `filtered_sensor_space()` expecting to read it in `compute_reward` or `compute_success_criteria`.
