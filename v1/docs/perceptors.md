@@ -110,6 +110,35 @@ In the serialized agent JSON, each perceptor entry has this shape:
 
 ---
 
+## Uploading as a portable component
+
+To upload a perceptor as a standalone portable component, include a `pyproject.toml` alongside your implementation:
+
+```toml
+[project]
+name = "my-perceptor"
+version = "0.1.0"
+description = "Computes derived features from raw sim observations."
+authors = [{ name = "Your Name", email = "you@example.com" }]
+dependencies = [
+    "amesa-core",
+]
+
+[amesa]
+type = "perceptor"
+variables = [
+    "derived_key1",
+    "derived_key2",
+]
+entrypoint = "my_module.perceptor:MyPerceptor"
+```
+
+- `type` must be `"perceptor"`
+- `variables` lists every key your `compute()` method returns — this is how the platform knows what observation keys the perceptor produces
+- `entrypoint` is `"module.path:ClassName"`
+
+---
+
 ## ⚠️ Quirks
 
 **Class, not instance** — Pass the **class** to `Perceptor(...)`, not an instance. The SDK instantiates it internally.

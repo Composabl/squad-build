@@ -144,6 +144,30 @@ skill.add_scenario({"initial_pos": [0.0, 5.0], "target": 3.0})
 
 ---
 
+## Uploading as a portable component
+
+To upload a teacher as a standalone portable component, include a `pyproject.toml` alongside your implementation:
+
+```toml
+[project]
+name = "my-teacher"
+version = "0.1.0"
+description = "ML teacher for my skill."
+authors = [{ name = "Your Name", email = "you@example.com" }]
+dependencies = [
+    "amesa-core",
+]
+
+[amesa]
+type = "skill-teacher"
+entrypoint = "my_module.teacher:MyTeacher"
+```
+
+- `type` must be `"skill-teacher"`
+- `entrypoint` is `"module.path:ClassName"`
+
+---
+
 ## ⚠️ Quirks
 
 **`is_compute_done` uses AND but the runtime uses OR** — The `SkillTeacher.is_compute_done()` helper returns `compute_success_criteria AND compute_termination`. The runtime, however, ends the episode when **either** returns `True` (`truncated = teacher_success or teacher_terminated`). Do not rely on `is_compute_done` to reason about when episodes end — use the individual methods directly.

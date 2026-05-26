@@ -72,6 +72,30 @@ Controllers do not need `training_cycles` (no ML training).
 
 ---
 
+## Uploading as a portable component
+
+To upload a controller as a standalone portable component, include a `pyproject.toml` alongside your implementation:
+
+```toml
+[project]
+name = "my-controller"
+version = "0.1.0"
+description = "A rule-based controller for my skill."
+authors = [{ name = "Your Name", email = "you@example.com" }]
+dependencies = [
+    "amesa-core",
+]
+
+[amesa]
+type = "skill-controller"
+entrypoint = "my_module.controller:MyController"
+```
+
+- `type` must be `"skill-controller"`
+- `entrypoint` is `"module.path:ClassName"`
+
+---
+
 ## ⚠️ Quirks
 
 **`compute_termination` is required** — Unlike `SkillTeacher` (where it defaults to `False`), you must implement it in a controller.

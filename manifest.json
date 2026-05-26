@@ -16,7 +16,7 @@
             "simulator.md": "ServerAmesa — sim interface, server bootstrap",
             "agent.md": "Agent — construction APIs (declarative, tree, context-manager), key methods",
             "sensors.md": "Sensor — definition, lambda mapping, normalization",
-            "perceptors.md": "PerceptorImpl — observation transformation, job JSON schema",
+            "perceptors.md": "PerceptorImpl — observation transformation, job JSON schema, pyproject.toml upload spec",
             "scenarios.md": "Scenario — curriculum configuration, range sampling",
             "spaces.md": "Spaces — Box, Discrete, Dict, Tuple, MultiBinary, MultiDiscrete, action masks",
             "goals.md": "Goal system — higher-level skill objectives, alternative to manual SkillTeacher reward",
@@ -28,8 +28,8 @@
               "description": "Per-skill-type documentation.",
               "files": {
                 "overview.md": "Skill types and implementation types — v1 support matrix",
-                "teacher.md": "SkillTeacher — required and optional methods, get_custom_action_space, quirks (compute_reward must return Python float in v1)",
-                "controller.md": "SkillController — required methods, compute_action, quirks",
+                "teacher.md": "SkillTeacher — required and optional methods, get_custom_action_space, quirks (compute_reward must return Python float in v1), pyproject.toml upload spec",
+                "controller.md": "SkillController — required methods, compute_action, quirks, pyproject.toml upload spec",
                 "selector.md": "SkillSelector — constructor, children, fixed_order, repeat",
                 "group.md": "SkillGroup — two-skill pipeline",
                 "coordinated.md": "SkillCoach / SkillCoordinatedSet — required methods, job JSON schema for skills_coordinated[]"
