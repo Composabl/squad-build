@@ -1,30 +1,93 @@
 # SkillTeacher Interface
 
-## Required methods
+`SkillTeacher` is the ML-training interface for a `Skill`.
+
+## Full scaffold
 
 ```python
-async def compute_reward(self, transformed_sensors: dict, action, sim_reward: float) -> float
-async def compute_success_criteria(self, transformed_sensors: dict, action) -> bool
-async def transform_action(self, transformed_sensors: dict, action)
-async def filtered_sensor_space(self) -> list[str]
+from amesa_core.agent.skill.skill_teacher import SkillTeacher
+from typing import Dict, List
+
+class MyTeacher(SkillTeacher):
+    # REQUIRED: Shape the learning signal used by the trainer.
+    async def compute_reward(self, transformed_sensors: Dict, action, sim_reward: float) -> float:
+        error = abs(float(transformed_sensors.get("error", 0.0)))
+        return float(-error)
+
+    # REQUIRED: Define when the objective has been achieved.
+    async def compute_success_criteria(self, transformed_sensors: Dict, action) -> bool:
+        return abs(float(transformed_sensors.get("error", 1.0))) < 0.1
+
+    # REQUIRED: Convert policy output into simulator-consumable action format.
+    async def transform_action(self, transformed_sensors: Dict, action):
+        return action
+
+    # REQUIRED: Declare which sensor keys this teacher reads.
+    async def filtered_sensor_space(self) -> List[str]:
+        return ["value", "target", "error"]
+
+    # OPTIONAL: Build derived sensor features before teacher logic runs.
+    # default: sensors
+    async def transform_sensors(self, sensors, action) -> Dict:
+        return sensors
+
+    # OPTIONAL: End episodes on failure/safety/timeout conditions.
+    # default: False
+    async def compute_termination(self, transformed_sensors: Dict, action) -> bool:
+        return float(transformed_sensors.get("value", 0.0)) > 100.0
+
+    # OPTIONAL: Restrict valid actions for the current step.
+    # default: None
+    async def compute_action_mask(self, transformed_sensors: Dict, action):
+        return None
+
+    # OPTIONAL: Override the trainer action-space definition.
+    # default: None
+    async def get_custom_action_space(self):
+        return None
 ```
 
-## Optional methods
+## Methods and intended use
 
-```python
-async def compute_termination(self, transformed_sensors: dict, action) -> bool
-async def transform_sensors(self, sensors, action) -> dict
-async def compute_action_mask(self, transformed_sensors: dict, action)
-async def get_custom_action_space(self)
-```
+### `compute_reward(self, transformed_sensors, action, sim_reward) -> float` (required)
 
-## Parameter/return notes
+Computes the scalar reward used for policy optimization. Use it for reward shaping, penalties, and blending simulator reward with task-specific objectives.
 
-- `transformed_sensors` is the post-`transform_sensors` view.
-- `action` shape depends on action space (`Discrete`, `Box`, `Dict`, etc.).
-- `sim_reward` is the simulator reward; blend or ignore as needed.
-- `compute_reward` must return a Python `float`.
-- `filtered_sensor_space()` returns `list[str]` sensor names.
+### `compute_success_criteria(self, transformed_sensors, action) -> bool` (required)
+
+Declares when the current episode should count as success. Use it for thresholds, compound checks, or milestone-based completion.
+
+### `transform_action(self, transformed_sensors, action)` (required)
+
+Converts policy output into the exact action format expected by the simulator. Use it for scaling, clipping, remapping, and structural conversion.
+
+### `filtered_sensor_space(self) -> list[str]` (required)
+
+Defines the teacher's sensor dependencies. Use it to keep observation requirements explicit and minimal.
+
+### `transform_sensors(self, sensors, action) -> dict` (optional)
+
+Preprocesses raw sensors into transformed features shared by reward/success/termination. Use it for normalization, coordinate transforms, and feature engineering.
+
+### `compute_termination(self, transformed_sensors, action) -> bool` (optional)
+
+Signals episode termination for non-success reasons such as failure, timeout, or safety boundaries.
+
+### `compute_action_mask(self, transformed_sensors, action)` (optional)
+
+Builds dynamic action constraints for the current state. Use it to disable invalid actions and enforce runtime feasibility.
+
+### `get_custom_action_space(self)` (optional)
+
+Overrides the default trainer action space when your policy output contract needs a custom structure or bounds.
+
+## Method contracts
+
+- `transformed_sensors`: post-`transform_sensors` sensor dict.
+- `action`: policy output shaped to action space.
+- `sim_reward`: simulator reward for the current step.
+- `compute_reward` **must** return a Python `float`.
+- `filtered_sensor_space()` returns the exact sensor keys this teacher consumes.
 
 ## Action mask shape reminders
 

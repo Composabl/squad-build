@@ -1,6 +1,6 @@
 # Goals Overview
 
-Goals are reusable `SkillTeacher` subclasses for standardized reward/success/termination logic.
+Goals are reusable `SkillTeacher` subclasses that package reward, success, and termination behavior into reusable scaffolding.
 
 Common goals:
 
@@ -11,4 +11,4 @@ Common goals:
 - `MinimizeGoal`
 - `CoordinatedGoal` (composition wrapper)
 
-Goals are best used by subclassing and attaching them to a `Skill` as the teacher implementation.
+Use goals when you want strong default reward scaffolding and only need to customize the surrounding teacher interface methods.
