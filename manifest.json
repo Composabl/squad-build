@@ -11,7 +11,6 @@
           "files": {
             "overview.md": "What SkillTeacher is for and when to use it",
             "interface.md": "Required/optional methods, parameters, return and action-mask expectations",
-            "hyperparameters.md": "Training-related Skill kwargs and tuning guidance",
             "job-json-schema.md": "Serialized teacher skill config shape and field intent",
             "publishing.md": "pyproject.toml portable component spec for skill-teacher",
             "quirks.md": "Behavior caveats and common failure modes"
