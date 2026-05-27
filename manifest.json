@@ -4,13 +4,64 @@
   "description": "Reference implementation and documentation for building AMESA agents and simulators using the AMESA SDK.",
   "directories": {
     "publishing-docs": {
-      "description": "Interface reference for publishable AMESA components — skill teachers, controllers, coordinated skills, perceptors, and goals.",
-      "files": {
-        "teacher.md": "SkillTeacher — required and optional methods, hyperparameter kwargs, job JSON schema, pyproject.toml upload spec, quirks",
-        "controller.md": "SkillController — required and optional methods, add_scenario, job JSON schema, pyproject.toml upload spec, quirks",
-        "coordinated.md": "SkillCoach / SkillCoordinatedSet / SkillCoordinatedPopulation — required and optional methods, add_skill, job JSON schema, pyproject.toml upload spec, quirks",
-        "perceptors.md": "PerceptorImpl / Perceptor — compute, filtered_sensor_space, constructor, job JSON schema, pyproject.toml upload spec, quirks",
-        "goals.md": "Goal system — all goal types, constructor parameters, reward formulas, CoordinatedGoal, GoalCoordinationStrategy, helper methods, job JSON schema, quirks"
+      "description": "Granular publishing/reference docs split by component and concern to improve targeted retrieval by analysis agents.",
+      "subdirectories": {
+        "teacher": {
+          "description": "SkillTeacher docs split by concern.",
+          "files": {
+            "overview.md": "What SkillTeacher is for and when to use it",
+            "interface.md": "Required/optional methods, parameters, return and action-mask expectations",
+            "hyperparameters.md": "Training-related Skill kwargs and tuning guidance",
+            "job-json-schema.md": "Serialized teacher skill config shape and field intent",
+            "publishing.md": "pyproject.toml portable component spec for skill-teacher",
+            "quirks.md": "Behavior caveats and common failure modes"
+          }
+        },
+        "controller": {
+          "description": "SkillController docs split by concern.",
+          "files": {
+            "overview.md": "When to use deterministic controllers",
+            "interface.md": "Required/optional controller methods and signatures",
+            "scenarios.md": "Scenario usage pattern for controller-backed skills",
+            "job-json-schema.md": "Serialized controller config shape",
+            "publishing.md": "pyproject.toml portable component spec for skill-controller",
+            "quirks.md": "Controller-specific caveats"
+          }
+        },
+        "coordinated": {
+          "description": "SkillCoach / coordinated set/population docs split by concern.",
+          "files": {
+            "overview.md": "Core coordinated types and use cases",
+            "interface.md": "SkillCoach required and optional methods",
+            "child-skills.md": "Child skill registration and naming constraints",
+            "job-json-schema.md": "Serialized coordinated skill config shape",
+            "publishing.md": "pyproject.toml portable component spec for coordinated skills",
+            "quirks.md": "Coordinated training caveats"
+          }
+        },
+        "perceptors": {
+          "description": "Perceptor docs split by concern.",
+          "files": {
+            "overview.md": "Perceptor role and intended usage",
+            "interface.md": "PerceptorImpl contract and output expectations",
+            "registration.md": "Agent registration and state/reset behavior",
+            "job-json-schema.md": "Serialized perceptor config shape",
+            "publishing.md": "pyproject.toml portable component spec for perceptors",
+            "quirks.md": "Perceptor-specific caveats"
+          }
+        },
+        "goals": {
+          "description": "Goal system docs split by concern.",
+          "files": {
+            "overview.md": "Goal system purpose and supported goal classes",
+            "interface.md": "Shared Goal parameters and helper behaviors",
+            "goal-types.md": "Per-goal intent and selection guidance",
+            "coordinated-goal.md": "CoordinatedGoal behavior and strategy notes",
+            "job-json-schema.md": "Goal serialization shape under impl_cls_data.goals",
+            "publishing.md": "How goal-based teachers are published",
+            "quirks.md": "Goal-specific caveats and edge cases"
+          }
+        }
       }
     },
     "examples": {
@@ -59,6 +110,39 @@
             "pyproject.toml": "Package metadata; [amesa] type = skill-teacher (Goal subclasses are SkillTeacher)",
             "goals_example/__init__.py": "Package init",
             "goals_example/goal.py": "LandingGoal — ApproachGoal on altitude (target 0, boundary ±0.5 m, scale 2) + AvoidGoal on descent_velocity (boundary 0–5 m/s), AND strategy, weights [2, 1]"
+          }
+        }
+      }
+    },
+    "analysis": {
+      "description": "Analyst-focused reference docs for inspecting generated benchmark and historian artifacts.",
+      "files": {
+        "benchmark-json.md": "How to analyze benchmark.json: structure, fields, aggregates, replay usage, and interpretation patterns.",
+        "historian-delta.md": "How to analyze historian Delta Lake output: schema, event catalog, query patterns, and artifact differences vs benchmark output."
+      }
+    },
+    "samples": {
+      "description": "Sample generated artifacts for benchmarking and historian outputs.",
+      "subdirectories": {
+        "benchmarking-sample": {
+          "description": "Sample benchmark export for a CartPole-like run.",
+          "files": {
+            "benchmark.json": "Scenario/episode/step benchmark output with aggregate stats."
+          }
+        },
+        "historian-sample": {
+          "description": "Sample historian Delta Lake output for run-cartpole-abc123.",
+          "subdirectories": {
+            "run-cartpole-abc123": {
+              "description": "Delta Lake table directory for one sample run.",
+              "files": {
+                "_delta_log/00000000000000000000.json": "Initial Delta transaction log commit.",
+                "part-00000-dd918d2e-f3f8-41f7-b1c1-144d37015d36-c000.snappy.parquet": "Sample telemetry data batch in Parquet format."
+              }
+            }
+          },
+          "files": {
+            "preview.json": "Small JSON preview of the first historian rows for quick inspection."
           }
         }
       }
