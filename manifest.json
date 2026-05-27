@@ -12,6 +12,56 @@
         "perceptors.md": "PerceptorImpl / Perceptor — compute, filtered_sensor_space, constructor, job JSON schema, pyproject.toml upload spec, quirks",
         "goals.md": "Goal system — all goal types, constructor parameters, reward formulas, CoordinatedGoal, GoalCoordinationStrategy, helper methods, job JSON schema, quirks"
       }
+    },
+    "examples": {
+      "description": "Uploadable example components, one per publishable type. Each subdirectory is a self-contained package ready for amesa_cli skill publish.",
+      "subdirectories": {
+        "teacher-example": {
+          "description": "SkillTeacher example: ReactorTemperatureTeacher regulates reactor temperature toward a setpoint.",
+          "entrypoint": "teacher_example.teacher:ReactorTemperatureTeacher",
+          "files": {
+            "pyproject.toml": "Package metadata; [amesa] type = skill-teacher",
+            "teacher_example/__init__.py": "Package init",
+            "teacher_example/teacher.py": "ReactorTemperatureTeacher — reward shaped on absolute temperature error, success within 1 °C of setpoint, termination on unsafe temperature"
+          }
+        },
+        "controller-example": {
+          "description": "SkillController example: PDController implements a proportional-derivative law for a 1-D position servo.",
+          "entrypoint": "controller_example.controller:PDController",
+          "files": {
+            "pyproject.toml": "Package metadata; [amesa] type = skill-controller",
+            "controller_example/__init__.py": "Package init",
+            "controller_example/controller.py": "PDController — force = -(Kp * position + Kd * velocity), success at |position| < 0.05 m, termination at |position| > 10 m"
+          }
+        },
+        "coordinated-example": {
+          "description": "SkillCoach (coordinated set) example: DriveCoach coordinates a navigate sub-skill and an avoid sub-skill for autonomous driving.",
+          "entrypoint": "coordinated_example.coach:DriveCoach",
+          "files": {
+            "pyproject.toml": "Package metadata; [amesa] type = skill-coordinated-set",
+            "coordinated_example/__init__.py": "Package init",
+            "coordinated_example/coach.py": "DriveCoach — distributes independent rewards to 'navigate' (distance-to-goal) and 'avoid' (obstacle clearance) sub-skills"
+          }
+        },
+        "perceptors-example": {
+          "description": "PerceptorImpl example: KinematicsPerceptor derives velocity and acceleration from consecutive position readings.",
+          "entrypoint": "perceptors_example.perceptor:KinematicsPerceptor",
+          "files": {
+            "pyproject.toml": "Package metadata; [amesa] type = perceptor, variables = [velocity, acceleration]",
+            "perceptors_example/__init__.py": "Package init",
+            "perceptors_example/perceptor.py": "KinematicsPerceptor — finite-difference velocity and acceleration from position + dt, resets on step_count == 0"
+          }
+        },
+        "goals-example": {
+          "description": "Goal example: LandingGoal is a CoordinatedGoal (AND) combining ApproachGoal (reach altitude 0) and AvoidGoal (limit descent speed) for a soft-landing task.",
+          "entrypoint": "goals_example.goal:LandingGoal",
+          "files": {
+            "pyproject.toml": "Package metadata; [amesa] type = skill-teacher (Goal subclasses are SkillTeacher)",
+            "goals_example/__init__.py": "Package init",
+            "goals_example/goal.py": "LandingGoal — ApproachGoal on altitude (target 0, boundary ±0.5 m, scale 2) + AvoidGoal on descent_velocity (boundary 0–5 m/s), AND strategy, weights [2, 1]"
+          }
+        }
+      }
     }
   },
   "root_files": {
