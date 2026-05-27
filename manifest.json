@@ -2,146 +2,21 @@
   "name": "squad-build",
   "repository": "Composabl/squad-build",
   "description": "Reference implementation and documentation for building AMESA agents and simulators using the AMESA SDK.",
-  "python_version": "3.11.8",
-  "sdk": "amesa-core-dev==0.30.1.dev4",
   "directories": {
-    "v1": {
-      "description": "SDK v1 reference docs and full example. Uses Ray/RLlib training — no Redis required.",
-      "subdirectories": {
-        "docs": {
-          "description": "SDK v1 reference documentation.",
-          "files": {
-            "README.md": "Documentation index",
-            "trainer.md": "Trainer — v1 config reference, Ray/RLlib-based training loop",
-            "simulator.md": "ServerAmesa — sim interface, server bootstrap",
-            "agent.md": "Agent — construction APIs (declarative, tree, context-manager), key methods",
-            "sensors.md": "Sensor — definition, lambda mapping, normalization",
-            "perceptors.md": "PerceptorImpl — observation transformation, job JSON schema, pyproject.toml upload spec",
-            "scenarios.md": "Scenario — curriculum configuration, range sampling",
-            "spaces.md": "Spaces — Box, Discrete, Dict, Tuple, MultiBinary, MultiDiscrete, action masks",
-            "goals.md": "Goal system — higher-level skill objectives, alternative to manual SkillTeacher reward",
-            "training_job.md": "TrainerJobConfig — full job JSON format, all targets, skill serialization, model_io, post_processing, graph",
-            "inference.md": "Running a trained policy from a checkpoint — Policy.from_checkpoint, compute_single_action pattern"
-          },
-          "subdirectories": {
-            "skills": {
-              "description": "Per-skill-type documentation.",
-              "files": {
-                "overview.md": "Skill types and implementation types — v1 support matrix",
-                "teacher.md": "SkillTeacher — required and optional methods, get_custom_action_space, quirks (compute_reward must return Python float in v1), pyproject.toml upload spec",
-                "controller.md": "SkillController — required methods, compute_action, quirks, pyproject.toml upload spec",
-                "selector.md": "SkillSelector — constructor, children, fixed_order, repeat",
-                "group.md": "SkillGroup — two-skill pipeline",
-                "coordinated.md": "SkillCoach / SkillCoordinatedSet — required methods, job JSON schema for skills_coordinated[]"
-              }
-            }
-          }
-        },
-        "full_example": {
-          "description": "Complete end-to-end v1 example: a greenhouse climate simulator paired with a multi-skill agent.",
-          "entrypoint": "v1/full_example/agent/run_training_local.py",
-          "subdirectories": {
-            "agent": {
-              "description": "Agent-side code: skills, perceptors, teacher, and training runner.",
-              "files": {
-                "build_agent.py": "Assembles and registers the Agent with all skills and perceptors",
-                "config.py": "Training hyperparameters and agent configuration",
-                "perceptors.py": "Perceptor implementations for the greenhouse agent",
-                "teacher.py": "SkillTeacher — reward, success, and termination logic",
-                "run_training_local.py": "Entry point for running a training job locally"
-              }
-            },
-            "sim": {
-              "description": "Simulator-side code: ServerAmesa implementation, scenarios, and local runner.",
-              "files": {
-                "sim.py": "Core simulation logic",
-                "server_impl.py": "ServerAmesa subclass wiring the sim to AMESA gRPC",
-                "server.py": "gRPC server bootstrap",
-                "scenarios.py": "Scenario definitions for curriculum training",
-                "run_local.py": "Entry point for running the simulator locally"
-              }
-            }
-          },
-          "files": {
-            "pyproject.toml": "Package metadata"
-          }
-        }
-      }
-    },
-    "v2": {
-      "description": "SDK v2 reference docs and full example. Uses Redis-stream event-based training architecture.",
-      "subdirectories": {
-        "docs": {
-          "description": "SDK v2 reference documentation. Ground-truth for v2 API usage, component interfaces, config, and quirks. Prefer these over distilled_docs or schemas when they conflict.",
-          "files": {
-            "README.md": "Documentation index",
-            "trainer.md": "Trainer — v2 config reference, Redis-stream event-based training loop",
-            "simulator.md": "ServerAmesa — sim interface, server bootstrap, Dockerfile pattern, Docker env vars",
-            "agent.md": "Agent — construction APIs (declarative, tree, context-manager), key methods",
-            "sensors.md": "Sensor — definition, lambda mapping, normalization",
-            "perceptors.md": "PerceptorImpl — observation transformation, v2 opt-in requirement, job JSON schema",
-            "scenarios.md": "Scenario — curriculum configuration, range sampling",
-            "spaces.md": "Spaces — Box, Discrete, Dict, Tuple, MultiBinary, MultiDiscrete, action masks",
-            "training_job.md": "TrainerJobConfig — full job JSON format, v2 target only, skill serialization, model_io, post_processing, graph"
-          },
-          "subdirectories": {
-            "skills": {
-              "description": "Per-skill-type documentation.",
-              "files": {
-                "overview.md": "Skill types and implementation types — v2 support matrix",
-                "teacher.md": "SkillTeacher — required and optional methods, get_custom_action_space, quirks",
-                "controller.md": "SkillController — required methods, compute_action, quirks",
-                "selector.md": "SkillSelector — constructor, children, fixed_order, repeat",
-                "group.md": "SkillGroup — two-skill pipeline, v2 supported",
-                "coordinated.md": "SkillCoach / SkillCoordinatedSet — NOT available in v2"
-              }
-            }
-          }
-        },
-        "full_example": {
-          "description": "Complete end-to-end v2 example: a greenhouse climate simulator paired with a multi-skill agent.",
-          "entrypoint": "v2/full_example/agent/run_training_local.py",
-          "docker": "v2/full_example/Dockerfile",
-          "subdirectories": {
-            "agent": {
-              "description": "Agent-side code: skills, perceptors, teacher, and training runner.",
-              "files": {
-                "build_agent.py": "Assembles and registers the Agent with all skills and perceptors — Skill includes training_cycles kwarg",
-                "config.py": "Training hyperparameters and agent configuration — includes TRAINING_CYCLES_PER_SKILL",
-                "perceptors.py": "Perceptor implementations for the greenhouse agent — ClimateDeltaPerceptor includes __await__ for v2 episode reset",
-                "teacher.py": "SkillTeacher — reward, success, and termination logic",
-                "run_training_local.py": "Entry point for running a training job locally",
-                "requirements.txt": "Agent Python dependencies (redis)"
-              }
-            },
-            "sim": {
-              "description": "Simulator-side code: ServerAmesa implementation, scenarios, and local runner.",
-              "files": {
-                "sim.py": "Core simulation logic",
-                "server_impl.py": "ServerAmesa subclass wiring the sim to AMESA gRPC",
-                "server.py": "gRPC server bootstrap",
-                "scenarios.py": "Scenario definitions for curriculum training",
-                "run_local.py": "Entry point for running the simulator locally",
-                "requirements.txt": "Simulator Python dependencies"
-              }
-            }
-          },
-          "files": {
-            "Dockerfile": "Multi-stage Docker image for the simulator",
-            "pyproject.toml": "Package metadata (amesa-greenhouse-sim v0.1.0)"
-          }
-        }
+    "publishing-docs": {
+      "description": "Interface reference for publishable AMESA components — skill teachers, controllers, coordinated skills, perceptors, and goals.",
+      "files": {
+        "teacher.md": "SkillTeacher — required and optional methods, hyperparameter kwargs, job JSON schema, pyproject.toml upload spec, quirks",
+        "controller.md": "SkillController — required and optional methods, add_scenario, job JSON schema, pyproject.toml upload spec, quirks",
+        "coordinated.md": "SkillCoach / SkillCoordinatedSet / SkillCoordinatedPopulation — required and optional methods, add_skill, job JSON schema, pyproject.toml upload spec, quirks",
+        "perceptors.md": "PerceptorImpl / Perceptor — compute, filtered_sensor_space, constructor, job JSON schema, pyproject.toml upload spec, quirks",
+        "goals.md": "Goal system — all goal types, constructor parameters, reward formulas, CoordinatedGoal, GoalCoordinationStrategy, helper methods, job JSON schema, quirks"
       }
     }
   },
   "root_files": {
-    "README.md": "Developer getting-started guide (SSH key, pyenv, venv setup)",
-    ".mcp.json": "MCP server config pointing to https://api.amesa.com/v1/mcp",
-    ".python-version": "Pins Python 3.11.8 via pyenv",
-    ".gitignore": "Git ignore rules"
-  },
-  "module_roots": {
-    "amesa_core": "Core SDK — Agent, Skill, Sensor, Scenario, SkillTeacher, SkillController, SkillCoach",
-    "amesa_train": "Training stack — Trainer, v2 event-based training loop, PPO"
+    "README.md": "Developer getting-started guide",
+    ".gitignore": "Git ignore rules",
+    "manifest.json": "This file — repo structure and file descriptions"
   }
 }

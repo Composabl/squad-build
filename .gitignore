@@ -1,9 +1,9 @@
 .pytest_cache/
 .ruff_cache/
 .venv/
-
 **/__pycache__/
 
-.env
+deprecated/
+sdk/
 
-README_deprecated.md
+.env

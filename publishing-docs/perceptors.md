@@ -19,12 +19,15 @@ class MyPerceptor(PerceptorImpl):
         Transform the observation.
 
         Args:
-            obs_spec: The observation space specification (rarely needed).
-            obs: The raw observation dict from the sim.
+            obs_spec: The observation space specification from the sim. Rarely needed;
+                      useful if your perceptor needs to know space bounds or dtypes.
+            obs: The raw observation dict from the sim. Keys are sensor names as
+                 declared in the agent's sensor list. Values are numpy scalars or arrays.
 
         Returns:
-            A dict of new/derived keys that get merged into the observation
-            seen by skills.
+            A dict of new or derived keys that get merged into the observation seen
+            by skills. Keys must not collide with existing sensor names unless you
+            intend to override them.
         """
         return {
             "derived_value": obs["a"] - obs["b"],
@@ -32,7 +35,8 @@ class MyPerceptor(PerceptorImpl):
 
     def filtered_sensor_space(self, obs) -> list[str]:
         """
-        Return the list of raw sensor names this perceptor needs as input.
+        Return the list of raw sensor names this perceptor reads as input.
+        Only these keys are guaranteed to be present in obs when compute() is called.
         """
         return ["a", "b"]
 ```
@@ -43,13 +47,29 @@ class MyPerceptor(PerceptorImpl):
 from amesa_core.agent.perceptor.perceptor import Perceptor
 
 MY_PERCEPTOR = Perceptor(
-    "my-perceptor",        # unique name
-    MyPerceptor,           # the class (not an instance)
-    "Computes derived_value from a and b",  # optional description
+    perceptor_name="my-perceptor",     # unique name; used as the key in the agent's perceptor list
+    impl_cls=MyPerceptor,              # the PerceptorImpl class (not an instance)
+    description="Computes derived_value from a and b",  # optional human-readable description
 )
 
 agent.add_perceptor(MY_PERCEPTOR)
 ```
+
+`Perceptor` constructor:
+
+```python
+Perceptor(
+    perceptor_name: str,
+    impl_cls: type[PerceptorImpl],
+    description: str | None = None,
+)
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `perceptor_name` | `str` | **required** | Unique name for this perceptor. Appears as `"name"` in the serialized agent JSON. |
+| `impl_cls` | `type[PerceptorImpl]` | **required** | The `PerceptorImpl` subclass. Pass the class itself, not an instance — the SDK instantiates it internally. |
+| `description` | `str \| None` | `None` | Optional human-readable description. Stored in the agent JSON. |
 
 Multiple perceptors can be added; their outputs are merged into the observation dict.
 
@@ -63,7 +83,7 @@ async def filtered_sensor_space(self):
     return ["a", "b", "derived_value"]  # derived_value comes from the perceptor
 ```
 
-> **v1 note** — In v1 training, perceptors are enabled automatically when registered via `agent.add_perceptor(...)`. No extra trainer config flags are required.
+Perceptors are enabled automatically when registered via `agent.add_perceptor(...)`.
 
 ---
 

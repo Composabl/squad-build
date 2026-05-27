@@ -1,3 +1,0 @@
-amesa-core-dev==0.28.0.dev9
-gymnasium==0.28.1
-numpy==1.26.4

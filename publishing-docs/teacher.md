@@ -13,6 +13,14 @@ async def transform_action(self, transformed_sensors: dict, action) -> any
 async def filtered_sensor_space(self) -> list[str]
 ```
 
+### Method parameter types
+
+| Parameter | Type | Description |
+|---|---|---|
+| `transformed_sensors` | `dict[str, Any]` | Sensor readings after `transform_sensors` has run. Keys are the sensor names declared in `filtered_sensor_space`. Values are typically `numpy.float32` scalars or arrays depending on the sim's observation space. |
+| `action` | `numpy.ndarray \| int \| dict` | The raw action output from the policy, shaped to match the action space. For `Box(shape=(N,))` spaces this is a 1-D ndarray of length N. For `Discrete(n)` it is a scalar int. |
+| `sim_reward` | `float` | The scalar reward returned by the simulator for this step. Use it, ignore it, or blend it with your own signal — your choice. |
+
 ## Optional methods (have defaults)
 
 ```python
@@ -94,7 +102,7 @@ class MyTeacher(SkillTeacher):
 
 ## Setting training hyperparameters
 
-In v1, training hyperparameters are set as kwargs on `Skill(...)`, not in the trainer config:
+Training hyperparameters are set as kwargs on `Skill(...)`:
 
 ```python
 from amesa_core.agent.skill.skill import Skill
@@ -102,12 +110,34 @@ from amesa_core.agent.skill.skill import Skill
 skill = Skill(
     "my-skill",
     MyTeacher,
-    training_cycles=100,      # how many PPO update iterations to run
-    train_batch_size=4000,    # samples collected per PPO batch
-    workers=2,                # Ray rollout workers
-    envs_per_worker=1,        # environments per worker
+    training_cycles=100,           # PPO update iterations per outer train cycle
+    train_batch_size=4000,         # samples collected per PPO batch
+    workers=2,                     # Ray rollout workers
+    envs_per_worker=1,             # parallel environments per rollout worker
+    learner_workers=0,             # dedicated learner workers (0 = use driver)
+    num_cpus_per_worker=1,         # CPU allocation per rollout worker
+    num_gpus_per_worker=0,         # GPU allocation per rollout worker
+    num_gpus_per_learner_worker=0, # GPU allocation per learner worker
+    num_cpus_per_learner_worker=1, # CPU allocation per learner worker
+    fc_layers=[256, 256],          # fully-connected hidden layer sizes
 )
 ```
+
+| kwarg | Type | Default | Description |
+|---|---|---|---|
+| `training_cycles` | `int` | `None` | Number of PPO update iterations the trainer runs for this skill per outer `train_cycles` loop iteration. |
+| `train_batch_size` | `int` | `4000` | Number of environment steps collected before each PPO update. Larger values produce more stable gradients but require more memory. |
+| `workers` | `int` | `1` | Number of Ray rollout workers collecting experience in parallel. |
+| `envs_per_worker` | `int` | `1` | Number of environment instances each rollout worker runs in parallel. |
+| `learner_workers` | `int` | `0` | Dedicated async learner workers. `0` means the driver process handles learning. |
+| `num_cpus_per_worker` | `float` | `1` | CPU cores requested per rollout worker. |
+| `num_gpus_per_worker` | `float` | `0` | GPUs requested per rollout worker. |
+| `num_gpus_per_learner_worker` | `float` | `0` | GPUs requested per learner worker. |
+| `num_cpus_per_learner_worker` | `float` | `1` | CPU cores requested per learner worker. |
+| `fc_layers` | `list[int]` | `[256, 256]` | Sizes of the fully-connected hidden layers in the policy network. |
+| `custom_action_space` | `Space \| None` | `None` | Override the sim's reported action space. Prefer `get_custom_action_space()` on the teacher instead. |
+
+`training_cycles` (per-skill) is independent of `train_cycles` (the argument to `trainer.train(agent, train_cycles=N)`). `train_cycles` is the number of outer loops; `training_cycles` is how many PPO iterations happen per skill per outer loop.
 
 ## Custom action space
 
@@ -141,6 +171,70 @@ from amesa_core.agent.skill.skill import Skill
 skill = Skill("my-skill", MyTeacher, training_cycles=100)
 skill.add_scenario({"initial_pos": [0.0, 5.0], "target": 3.0})
 ```
+
+---
+
+## Job JSON schema
+
+In the serialized agent JSON, each teacher skill entry follows `SkillDRLOptions`. The `impl_cls_data` block holds goals and guidance attached to the teacher.
+
+```json
+{
+  "name": "my-skill",
+  "type": "SkillTeacher",
+  "config": {
+    "remote_address": null,
+    "impl_cls": {
+      "cls_name": "MyTeacher",
+      "cls_module": "my_agent.teacher",
+      "cls_src": "<base64-pickle>",
+      "cls_deps": []
+    },
+    "impl_cls_data": {
+      "guidance": null,
+      "goals": [],
+      "constraints": null
+    },
+    "learning": {
+      "training_cycles": 100,
+      "train_batch_size": 4000,
+      "rl_algo": "PPO"
+    },
+    "resources": {
+      "workers": 1,
+      "learner_workers": 0,
+      "envs_per_worker": 1,
+      "num_cpus_per_worker": 1,
+      "num_gpus_per_worker": 0
+    },
+    "model": {
+      "checkpoint_uri": "/tmp/amesa",
+      "fc_layers": [256, 256]
+    },
+    "model_io": {},
+    "scenarios": [],
+    "scenarios_current_idx": 0,
+    "use_image_nn": false
+  }
+}
+```
+
+| Field | Default | Description |
+|---|---|---|
+| `remote_address` | `null` | URL of a remotely-hosted teacher; when set, `impl_cls` is ignored and requests are forwarded to this address. |
+| `impl_cls` | — | Serialized teacher class produced by `Agent.export()`. Contains `cls_name`, `cls_module`, a base64-pickled source (`cls_src`), and a list of dependency strings (`cls_deps`). |
+| `impl_cls_data` | — | Guidance, goals, and constraints attached to the teacher. `goals` is a list of goal JSON objects (see `goals.md`). |
+| `learning.training_cycles` | `null` | PPO update iterations per outer train loop for this skill. |
+| `learning.train_batch_size` | `4000` | Samples collected before each PPO update. |
+| `learning.rl_algo` | `"PPO"` | Reinforcement learning algorithm. Only `PPO` is supported. |
+| `resources.workers` | `1` | Ray rollout workers. |
+| `resources.learner_workers` | `0` | Dedicated async learner workers. `0` = driver handles learning. |
+| `resources.envs_per_worker` | `1` | Parallel environment instances per rollout worker. |
+| `model.checkpoint_uri` | `"/tmp/amesa"` | Path where model checkpoints are read from and written to. |
+| `model.fc_layers` | `[256, 256]` | Fully-connected hidden layer sizes for the policy network. |
+| `model_io` | `{}` | Sensor and action space overrides. Populated when `custom_action_space` is set. |
+| `scenarios` | `[]` | Scenario configurations cycled during training. |
+| `use_image_nn` | `false` | Enable a convolutional network instead of fully-connected layers. |
 
 ---
 
@@ -184,7 +278,7 @@ entrypoint = "my_module.teacher:MyTeacher"
 
 **`filtered_sensor_space` returns names, not spaces** — Return a `list[str]`, not `list[Sensor]` objects.
 
-**`compute_reward` must return a Python `float`** — v1 uses Ray/RLlib, which validates the reward returned by the full teacher-wrapped step before training starts. Values in `transformed_sensors` are numpy scalars (e.g. `numpy.float32`); arithmetic on them produces numpy types, not Python `float`. RLlib's env checker rejects these with:
+**`compute_reward` must return a Python `float`** — Values in `transformed_sensors` are numpy scalars (e.g. `numpy.float32`); arithmetic on them produces numpy types, not Python `float`. RLlib's env checker rejects these with:
 
 ```
 ValueError: Your step function must return a reward that is integer or float.
@@ -199,4 +293,4 @@ async def compute_reward(self, transformed_sensors, action, sim_reward):
     return float(sim_reward + vel * 1.5)   # float() required
 ```
 
-This applies even when individual sensor values look like plain numbers — numpy arithmetic re-introduces numpy types. This restriction does not apply to v2, which uses Redis streams and has no RLlib env pre-check.
+This applies even when individual sensor values look like plain numbers — numpy arithmetic re-introduces numpy types.
