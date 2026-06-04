@@ -1,4 +1,4 @@
-# Coordinated Interface (Holistic)
+# Coordinated Interface
 
 `SkillCoach` defines reward/success/termination across a coordinated group of child skills.
 

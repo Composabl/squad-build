@@ -1,4 +1,4 @@
-# Goal Interface (Holistic)
+# Goal Interface
 
 Goals are reusable `SkillTeacher` subclasses that provide reward/success/termination logic.
 

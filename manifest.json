@@ -60,6 +60,16 @@
             "publishing.md": "How goal-based teachers are published",
             "quirks.md": "Goal-specific caveats and edge cases"
           }
+        },
+        "selectors": {
+          "description": "SkillSelector docs split by concern.",
+          "files": {
+            "overview.md": "Selector purpose, routing model, and SDK compliance essentials",
+            "interface.md": "Teacher/controller selector scaffolds with selector-specific method contracts",
+            "job-json-schema.md": "Serialized selector config shapes for SkillSelector and SkillSelectorController",
+            "publishing.md": "Scaffold, package metadata, compliance checklist, and selector publish command",
+            "quirks.md": "Selector-specific caveats around type names, child indexing, and action masks"
+          }
         }
       }
     },
@@ -109,6 +119,15 @@
             "pyproject.toml": "Package metadata; [amesa] type = skill-teacher (Goal subclasses are SkillTeacher)",
             "goals_example/__init__.py": "Package init",
             "goals_example/goal.py": "LandingGoal — ApproachGoal on altitude (target 0, boundary ±0.5 m, scale 2) + AvoidGoal on descent_velocity (boundary 0–5 m/s), AND strategy, weights [2, 1]"
+          }
+        },
+        "selector-example": {
+          "description": "Selector example: CounterSelectorTeacher chooses a child skill index from demand and error signals.",
+          "entrypoint": "selector_example.teacher:CounterSelectorTeacher",
+          "files": {
+            "pyproject.toml": "Package metadata; [amesa] type = selector-teacher",
+            "selector_example/__init__.py": "Package init",
+            "selector_example/teacher.py": "CounterSelectorTeacher — routes between child indices with optional masking; reward favors high demand and low error"
           }
         }
       }

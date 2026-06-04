@@ -1,4 +1,4 @@
-# SkillController Interface (Holistic)
+# SkillController Interface
 
 `SkillController` is the deterministic/rule-based interface for a `Skill`.
 

@@ -69,6 +69,8 @@ Defines the teacher's sensor dependencies. Use it to keep observation requiremen
 
 Preprocesses raw sensors into transformed features shared by reward/success/termination. Use it for normalization, coordinate transforms, and feature engineering.
 
+> **Important:** Values returned for keys listed in `filtered_sensor_space` must be array-like (e.g., `np.ndarray`), not plain Python `float` or `int`. The framework calls `.flatten()` on these values when building the observation vector — returning a bare scalar will raise `'float' object has no attribute 'flatten'`. If you need to remap or wrap a sensor value (e.g., angle wrapping), return `np.array([new_value], dtype=np.float32)` rather than a raw float. Derived keys that are *not* in `filtered_sensor_space` (e.g., normalized scalars used only in reward shaping) may be any Python type.
+
 ### `compute_termination(self, transformed_sensors, action) -> bool` (optional)
 
 Signals episode termination for non-success reasons such as failure, timeout, or safety boundaries.
