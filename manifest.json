@@ -133,14 +133,11 @@
       }
     },
     "analysis": {
-      "description": "Analyst-focused reference docs for inspecting generated benchmark and historian artifacts.",
+      "description": "Analyst-focused reference docs and sample generated artifacts for inspecting benchmark and historian outputs.",
       "files": {
         "benchmark-json.md": "How to analyze benchmark.json: structure, fields, aggregates, replay usage, and interpretation patterns.",
         "historian-delta.md": "How to analyze historian Delta Lake output: schema, event catalog, query patterns, and artifact differences vs benchmark output."
-      }
-    },
-    "samples": {
-      "description": "Sample generated artifacts for benchmarking and historian outputs.",
+      },
       "subdirectories": {
         "benchmarking-sample": {
           "description": "Sample benchmark export for a CartPole-like run.",
