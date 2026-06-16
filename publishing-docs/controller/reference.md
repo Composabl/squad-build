@@ -9,33 +9,65 @@ from amesa_core.agent.skill.skill_controller import SkillController
 from typing import Dict
 
 class MyController(SkillController):
-    # REQUIRED: Produce the simulator action from transformed sensors.
     async def compute_action(self, transformed_sensors: Dict, action):
+        """Produce the simulator action from transformed sensors.
+
+        :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
+        :type transformed_sensors: Dict
+        :param action: Previous action (useful for stateful controllers).
+        :returns: Action consumable by the sim action space.
+        :raises NotImplementedError: if not overridden in the subclass.
+        """
         error = float(transformed_sensors.get("error", 0.0))
         control = -0.5 * error
         return [float(control)]
 
-    # REQUIRED: Declare which sensor keys this controller reads.
     async def filtered_sensor_space(self):
+        """Declare which sensor keys this controller reads.
+
+        :returns: List of sensor key strings.
+        :rtype: list[str]
+        :raises NotImplementedError: if not overridden in the subclass.
+        """
         return ["value", "target", "error"]
 
-    # REQUIRED: Define when the controlled behavior is successful.
     async def compute_success_criteria(self, transformed_sensors: Dict, action) -> bool:
+        """Define when the controlled behavior is successful.
+
+        :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
+        :type transformed_sensors: Dict
+        :param action: Current action taken by the agent.
+        :returns: ``True`` when the success condition is met.
+        :rtype: bool
+        :raises NotImplementedError: if not overridden in the subclass.
+        """
         return abs(float(transformed_sensors.get("error", 1.0))) < 0.05
 
-    # REQUIRED: Define when the episode should terminate.
     async def compute_termination(self, transformed_sensors: Dict, action) -> bool:
+        """Define when the episode should terminate.
+
+        :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
+        :type transformed_sensors: Dict
+        :param action: Current action taken by the agent.
+        :returns: ``True`` when the episode should end.
+        :rtype: bool
+        :raises NotImplementedError: if not overridden in the subclass.
+        """
         return float(transformed_sensors.get("value", 0.0)) > 100.0
 
-    # OPTIONAL: Derive controller-specific features from raw sensors.
-    # default: sensors
     async def transform_sensors(self, sensors) -> Dict:
-        return sensors
+        """Derive controller-specific features from raw sensors.
 
-    # OPTIONAL: Restrict valid actions for the current state.
-    # default: None
-    async def compute_action_mask(self, transformed_sensors: Dict, action):
-        return None
+        Computes ``error`` as the signed difference between ``value`` and
+        ``target`` so downstream control logic only needs to read a single key.
+
+        :param sensors: Raw sensor dict from the environment.
+        :returns: Transformed sensor dict with an added ``error`` key.
+        :rtype: Dict
+        """
+        value = float(sensors.get("value", 0.0))
+        target = float(sensors.get("target", 0.0))
+        return {**sensors, "error": value - target}
 ```
 
 ## Methods and intended use
@@ -59,10 +91,6 @@ Defines termination conditions (for example safety limits, dead-ends, or max bou
 ### `transform_sensors(self, sensors) -> dict` (optional)
 
 Preprocesses raw sensors before controller logic executes. Use it for normalization, derived features, and compact state construction.
-
-### `compute_action_mask(self, transformed_sensors, action)` (optional)
-
-Builds dynamic action validity constraints for the current state when action masking is supported.
 
 ## Method contracts
 

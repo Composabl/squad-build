@@ -10,7 +10,7 @@
           "description": "SkillTeacher docs split by concern.",
           "files": {
             "overview.md": "What SkillTeacher is for and when to use it",
-            "interface.md": "Full SkillTeacher scaffold first, including all required/optional methods with functional intent and capability notes",
+            "reference.md": "Full SkillTeacher scaffold with all required/optional methods, functional intent, capability notes, and :raises: entries covering NotImplementedError, AttributeError on non-array filtered sensors, and ValueError on action-mask length mismatches",
             "job-json-schema.md": "Serialized teacher skill config shape and field intent",
             "publishing.md": "pyproject.toml portable component spec for skill-teacher",
             "quirks.md": "Behavior caveats and common failure modes"
@@ -20,7 +20,7 @@
           "description": "SkillController docs split by concern.",
           "files": {
             "overview.md": "When to use deterministic controllers",
-            "interface.md": "Full SkillController scaffold first, including all required/optional methods with intended use and capabilities",
+            "reference.md": "Full SkillController scaffold with all required/optional methods, intended use, capabilities, and :raises: entries covering NotImplementedError on each abstract method",
             "scenarios.md": "Scenario usage pattern for controller-backed skills",
             "job-json-schema.md": "Serialized controller config shape",
             "publishing.md": "pyproject.toml portable component spec for skill-controller",
@@ -31,7 +31,7 @@
           "description": "SkillCoach / coordinated set/population docs split by concern.",
           "files": {
             "overview.md": "Core coordinated types and use cases",
-            "interface.md": "Full SkillCoach scaffold first, including all required/optional methods with team-level functional behavior",
+            "reference.md": "Full SkillCoach scaffold with all required/optional methods and team-level functional behavior",
             "child-skills.md": "Child skill registration and naming constraints",
             "job-json-schema.md": "Serialized coordinated skill config shape",
             "publishing.md": "pyproject.toml portable component spec for coordinated skills",
@@ -42,7 +42,7 @@
           "description": "Perceptor docs split by concern.",
           "files": {
             "overview.md": "Perceptor role and intended usage",
-            "interface.md": "Full PerceptorImpl scaffold first, with complete method contract and feature-derivation intent",
+            "reference.md": "Full PerceptorImpl scaffold with complete method contract, feature-derivation intent, and :raises: entries covering NotImplementedError, key-collision Exception, and ValueError on None leaf values",
             "registration.md": "Agent registration and state/reset behavior",
             "job-json-schema.md": "Serialized perceptor config shape",
             "publishing.md": "pyproject.toml portable component spec for perceptors",
@@ -53,7 +53,7 @@
           "description": "Goal system docs split by concern.",
           "files": {
             "overview.md": "Goal system purpose and supported goal classes",
-            "interface.md": "Full goal-backed teacher scaffold first, including required/optional overrides and method intent",
+            "reference.md": "Full goal-backed teacher scaffold with required/optional overrides and method intent",
             "goal-types.md": "Per-goal intent and selection guidance",
             "coordinated-goal.md": "CoordinatedGoal behavior and strategy notes",
             "job-json-schema.md": "Goal serialization shape under impl_cls_data.goals",
@@ -65,7 +65,7 @@
           "description": "SkillSelector docs split by concern.",
           "files": {
             "overview.md": "Selector purpose, routing model, and SDK compliance essentials",
-            "interface.md": "Teacher/controller selector scaffolds with selector-specific method contracts",
+            "reference.md": "Teacher/controller selector scaffolds with selector-specific method contracts and :raises: entries for abstract methods, action-mask length mismatches, and AttributeError on non-array filtered sensors",
             "job-json-schema.md": "Serialized selector config shapes for SkillSelector and SkillSelectorController",
             "publishing.md": "Scaffold, package metadata, compliance checklist, and selector publish command",
             "quirks.md": "Selector-specific caveats around type names, child indexing, and action masks"

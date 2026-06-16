@@ -6,3 +6,4 @@
 deprecated/
 
 .env
+package.sh

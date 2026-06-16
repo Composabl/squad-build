@@ -5,6 +5,7 @@ Goals are reusable `SkillTeacher` subclasses that provide reward/success/termina
 ## Full scaffold
 
 ```python
+import numpy as np
 from amesa_core.agent.skill.goals.maintain_goal import MaintainGoal
 from typing import Dict, List
 
@@ -18,28 +19,82 @@ class BalanceTeacher(MaintainGoal):
             scale=1.0,
         )
 
-    # REQUIRED: Declare the sensors this goal-backed teacher reads.
     async def filtered_sensor_space(self) -> List[str]:
+        """Declare the sensors this goal-backed teacher reads.
+
+        :returns: List of sensor key strings.
+        :rtype: List[str]
+        """
         return ["pole_theta", "pole_alpha", "cart_pos", "cart_vel"]
 
-    # REQUIRED: Convert policy output to simulator action format.
     async def transform_action(self, transformed_sensors: Dict, action):
+        """Convert policy output to simulator action format.
+
+        :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
+        :type transformed_sensors: Dict
+        :param action: Raw policy output.
+        :returns: Action in the format expected by the simulator.
+        """
         return action
 
-    # OPTIONAL: Precompute derived features before goal logic executes.
     async def transform_sensors(self, sensors, action) -> Dict:
-        return sensors
+        """Precompute derived features before goal logic executes.
 
-    # OPTIONAL: Override the concrete goal's default reward behavior.
+        Wraps each sensor in a ``np.ndarray`` so the framework can call
+        ``.flatten()`` when building the observation vector.
+
+        :param sensors: Raw sensor dict from the environment.
+        :param action: Current action.
+        :returns: Transformed sensor dict.
+        :rtype: Dict
+        """
+        return {
+            **sensors,
+            "pole_theta": np.array([float(sensors.get("pole_theta", 0.0))], dtype=np.float32),
+            "pole_alpha": np.array([float(sensors.get("pole_alpha", 0.0))], dtype=np.float32),
+            "cart_pos":   np.array([float(sensors.get("cart_pos",   0.0))], dtype=np.float32),
+            "cart_vel":   np.array([float(sensors.get("cart_vel",   0.0))], dtype=np.float32),
+        }
+
     async def compute_reward(self, transformed_sensors: Dict, action, sim_reward: float) -> float:
+        """Override the concrete goal's default reward behavior.
+
+        Delegates to :meth:`MaintainGoal.compute_reward` by default.
+
+        :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
+        :type transformed_sensors: Dict
+        :param action: Policy output shaped to the action space.
+        :param sim_reward: Simulator reward for the current step.
+        :type sim_reward: float
+        :returns: Scalar reward.
+        :rtype: float
+        """
         return await super().compute_reward(transformed_sensors, action, sim_reward)
 
-    # OPTIONAL: Override the concrete goal's default success behavior.
     async def compute_success_criteria(self, transformed_sensors: Dict, action) -> bool:
+        """Override the concrete goal's default success behavior.
+
+        Delegates to :meth:`MaintainGoal.compute_success_criteria` by default.
+
+        :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
+        :type transformed_sensors: Dict
+        :param action: Policy output shaped to the action space.
+        :returns: ``True`` when the goal success condition is met.
+        :rtype: bool
+        """
         return await super().compute_success_criteria(transformed_sensors, action)
 
-    # OPTIONAL: Override the concrete goal's default termination behavior.
     async def compute_termination(self, transformed_sensors: Dict, action) -> bool:
+        """Override the concrete goal's default termination behavior.
+
+        Delegates to :meth:`MaintainGoal.compute_termination` by default.
+
+        :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
+        :type transformed_sensors: Dict
+        :param action: Policy output shaped to the action space.
+        :returns: ``True`` when the episode should terminate.
+        :rtype: bool
+        """
         return await super().compute_termination(transformed_sensors, action)
 ```
 
