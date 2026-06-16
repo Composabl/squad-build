@@ -8,6 +8,7 @@
 from amesa_core.agent.perceptor.perceptor_impl import PerceptorImpl
 
 class MyPerceptor(PerceptorImpl):
+    # required
     async def compute(self, obs_spec, obs) -> dict:
         """Produce derived variables from raw observations.
 
@@ -23,11 +24,14 @@ class MyPerceptor(PerceptorImpl):
             ``flatten_object_numpy`` on each value when building the observation
             space and ``None`` is not a valid leaf (``"flatten_object_numpy: None
             is not a valid leaf value"``).
+        :note: Returned keys should be stable and documented in component
+            metadata (``variables`` in publish config).
         """
         return {
             "derived_value": float(obs["a"]) - float(obs["b"]),
         }
 
+    # required
     def filtered_sensor_space(self, obs) -> list[str]:
         """Declare which raw sensor keys this perceptor depends on.
 
@@ -38,23 +42,3 @@ class MyPerceptor(PerceptorImpl):
         """
         return ["a", "b"]
 ```
-
-## Methods and intended use
-
-### `compute(self, obs_spec, obs) -> dict` (required)
-
-Use this to calculate perceptor outputs from simulator observations. Capabilities include combining sensors, applying normalization, feature engineering, and exposing stable keys that downstream teachers/controllers consume.
-
-### `filtered_sensor_space(self, obs) -> list[str]` (required)
-
-Use this to declare the raw sensor keys the perceptor reads. This acts as the perceptor's dependency contract and helps keep observation usage explicit and minimal.
-
-## Optional methods
-
-`PerceptorImpl` has no optional lifecycle methods you must implement.
-
-## Method contracts
-
-- `compute(...)` returns a dict of derived keys/values.
-- `filtered_sensor_space(...)` returns the raw input sensor keys this perceptor reads.
-- Returned keys should be stable and documented in component metadata (`variables` in publish config).

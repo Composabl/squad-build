@@ -9,6 +9,7 @@ from amesa_core.agent.skill.skill_controller import SkillController
 from typing import Dict
 
 class MyController(SkillController):
+    # required
     async def compute_action(self, transformed_sensors: Dict, action):
         """Produce the simulator action from transformed sensors.
 
@@ -22,6 +23,7 @@ class MyController(SkillController):
         control = -0.5 * error
         return [float(control)]
 
+    # required
     async def filtered_sensor_space(self):
         """Declare which sensor keys this controller reads.
 
@@ -31,6 +33,7 @@ class MyController(SkillController):
         """
         return ["value", "target", "error"]
 
+    # required
     async def compute_success_criteria(self, transformed_sensors: Dict, action) -> bool:
         """Define when the controlled behavior is successful.
 
@@ -43,6 +46,7 @@ class MyController(SkillController):
         """
         return abs(float(transformed_sensors.get("error", 1.0))) < 0.05
 
+    # required
     async def compute_termination(self, transformed_sensors: Dict, action) -> bool:
         """Define when the episode should terminate.
 
@@ -55,6 +59,7 @@ class MyController(SkillController):
         """
         return float(transformed_sensors.get("value", 0.0)) > 100.0
 
+    # optional
     async def transform_sensors(self, sensors) -> Dict:
         """Derive controller-specific features from raw sensors.
 
@@ -70,31 +75,3 @@ class MyController(SkillController):
         return {**sensors, "error": value - target}
 ```
 
-## Methods and intended use
-
-### `compute_action(self, transformed_sensors, action)` (required)
-
-Computes the control output applied to the simulator at each step. Use it for deterministic control laws, rule engines, and stateful policy logic.
-
-### `filtered_sensor_space(self) -> list[str]` (required)
-
-Declares the controller's sensor dependency set. Use it to explicitly limit observations to what control logic needs.
-
-### `compute_success_criteria(self, transformed_sensors, action) -> bool` (required)
-
-Defines success conditions for the controlled objective. Use it for tolerance bands, state goals, and composite completion checks.
-
-### `compute_termination(self, transformed_sensors, action) -> bool` (required)
-
-Defines termination conditions (for example safety limits, dead-ends, or max bounds). This is required for controllers.
-
-### `transform_sensors(self, sensors) -> dict` (optional)
-
-Preprocesses raw sensors before controller logic executes. Use it for normalization, derived features, and compact state construction.
-
-## Method contracts
-
-- `transformed_sensors`: post-`transform_sensors` sensor dict.
-- `action`: previous action (useful for stateful controllers).
-- `compute_action`: must return a value consumable by the sim action space.
-- `transform_sensors` takes only `sensors` (no `action` argument).

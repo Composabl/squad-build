@@ -10,6 +10,7 @@ from amesa_core.agent.skill.skill_teacher import SkillTeacher
 from typing import Dict, List
 
 class MyTeacher(SkillTeacher):
+    # required
     async def compute_reward(self, transformed_sensors: Dict, action, sim_reward: float) -> float:
         """Shape the learning signal used by the trainer.
 
@@ -25,6 +26,7 @@ class MyTeacher(SkillTeacher):
         error = abs(float(transformed_sensors["error"][0]))
         return float(-error)
 
+    # required
     async def compute_success_criteria(self, transformed_sensors: Dict, action) -> bool:
         """Define when the objective has been achieved.
 
@@ -37,6 +39,7 @@ class MyTeacher(SkillTeacher):
         """
         return abs(float(transformed_sensors["error"][0])) < 0.1
 
+    # required
     async def transform_action(self, transformed_sensors: Dict, action):
         """Convert policy output into simulator-consumable action format.
 
@@ -48,6 +51,7 @@ class MyTeacher(SkillTeacher):
         """
         return action
 
+    # required
     async def filtered_sensor_space(self) -> List[str]:
         """Declare which sensor keys this teacher reads.
 
@@ -57,6 +61,7 @@ class MyTeacher(SkillTeacher):
         """
         return ["value", "target", "error"]
 
+    # optional
     async def transform_sensors(self, sensors, action) -> Dict:
         """Build derived sensor features before teacher logic runs.
 
@@ -85,6 +90,7 @@ class MyTeacher(SkillTeacher):
             "error": np.array([error], dtype=np.float32),
         }
 
+    # optional
     async def compute_termination(self, transformed_sensors: Dict, action) -> bool:
         """End episodes on failure, safety, or timeout conditions.
 
@@ -96,6 +102,7 @@ class MyTeacher(SkillTeacher):
         """
         return float(transformed_sensors["value"][0]) > 100.0
 
+    # optional
     async def compute_action_mask(self, transformed_sensors: Dict, action) -> List[bool]:
         """Restrict valid actions for the current step.
 
@@ -115,59 +122,52 @@ class MyTeacher(SkillTeacher):
         at_target = abs(error) < 0.1
         # Discrete(2): [decrease, increase]
         return [True, not at_target]
+
+    # optional
+    async def get_custom_action_space(self):
+        """Return a custom action space for this skill's policy.
+
+        When provided, the policy trains against this space instead of the
+        simulator's native action space. :meth:`transform_action` is then
+        responsible for mapping policy output back to the sim's format.
+
+        :returns: A space definition (e.g. ``Box``, ``Discrete``) for the
+            custom action space, or ``None`` to use the simulator's action
+            space (default).
+        """
+        return None  # replace with e.g. Box(low=-1, high=1, shape=(1,))
+
+    # optional
+    async def is_compute_done(self, transformed_sensors: Dict, action) -> bool:
+        """Combined done signal for the training loop.
+
+        Returns ``True`` when both :meth:`compute_success_criteria` **and**
+        :meth:`compute_termination` return ``True``. Override only when you
+        need custom gate logic beyond their conjunction.
+
+        :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
+        :type transformed_sensors: Dict
+        :param action: Policy output shaped to the action space.
+        :returns: ``True`` when the episode is done.
+        :rtype: bool
+        """
+        return (
+            await self.compute_success_criteria(transformed_sensors, action)
+            and await self.compute_termination(transformed_sensors, action)
+        )
+
+    # optional
+    def add_scenario(self, scenario) -> None:
+        """Associate a scenario with this teacher.
+
+        Called by the framework before training begins. Stores ``scenario``
+        on ``self.scenario``. Override to react to scenario changes at setup
+        time; most teachers can use the default.
+
+        :param scenario: The ``Scenario`` instance provided by the framework.
+        """
+        self.scenario = scenario
 ```
-
-## Methods and intended use
-
-### `compute_reward(self, transformed_sensors, action, sim_reward) -> float` (required)
-
-Computes the scalar reward used for policy optimization. Use it for reward shaping, penalties, and blending simulator reward with task-specific objectives.
-
-### `compute_success_criteria(self, transformed_sensors, action) -> bool` (required)
-
-Declares when the current episode should count as success. Use it for thresholds, compound checks, or milestone-based completion.
-
-### `transform_action(self, transformed_sensors, action)` (required)
-
-Converts policy output into the exact action format expected by the simulator. Use it for scaling, clipping, remapping, and structural conversion.
-
-### `filtered_sensor_space(self) -> list[str]` (required)
-
-Defines the teacher's sensor dependencies. Use it to keep observation requirements explicit and minimal.
-
-### `transform_sensors(self, sensors, action) -> dict` (optional)
-
-Preprocesses raw sensors into transformed features shared by reward/success/termination. Use it for normalization, coordinate transforms, and feature engineering.
-
-> **Important:** Values returned for keys listed in `filtered_sensor_space` must be array-like (e.g., `np.ndarray`), not plain Python `float` or `int`. The framework calls `.flatten()` on these values when building the observation vector — returning a bare scalar will raise `'float' object has no attribute 'flatten'`. If you need to remap or wrap a sensor value (e.g., angle wrapping), return `np.array([new_value], dtype=np.float32)` rather than a raw float. Derived keys that are *not* in `filtered_sensor_space` (e.g., normalized scalars used only in reward shaping) may be any Python type.
-
-### `compute_termination(self, transformed_sensors, action) -> bool` (optional)
-
-Signals episode termination for non-success reasons such as failure, timeout, or safety boundaries.
-
-### `compute_action_mask(self, transformed_sensors, action) -> list[bool]` (optional)
-
-Builds dynamic action constraints for the current state. Use it to disable invalid actions and enforce runtime feasibility.
-
-### `get_custom_action_space(self)` (optional)
-
-Returns a custom action space (e.g., `Box`, `Discrete`) for the policy to train against, instead of the simulator's native action space. Returns `None` by default (uses sim's action space). When overridden, `transform_action` is responsible for mapping the policy output back to the sim's expected format.
-
-### `is_compute_done(self, transformed_sensors, action) -> bool` (optional)
-
-Returns `True` when `compute_success_criteria` **and** `compute_termination` are both `True`. The default combines both checks into a single done signal for the training loop. Override only when you need custom gate logic beyond the conjunction of the two.
-
-### `add_scenario(self, scenario)` (optional)
-
-Associates a `Scenario` with the teacher, storing it on `self.scenario`. Called by the framework before training begins. Override to react to scenario changes at setup time; most teachers can use the default.
-
-## Method contracts
-
-- `transformed_sensors`: post-`transform_sensors` sensor dict.
-- `action`: policy output shaped to action space.
-- `sim_reward`: simulator reward for the current step.
-- `compute_reward` **must** return a Python `float`.
-- `filtered_sensor_space()` returns the exact sensor keys this teacher consumes.
 
 ## Action mask shape reminders
 

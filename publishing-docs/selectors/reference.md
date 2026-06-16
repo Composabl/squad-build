@@ -10,6 +10,7 @@ from amesa_core.agent.skill.skill_teacher import SkillTeacher
 from typing import Dict, List
 
 class MySelectorTeacher(SkillTeacher):
+    # required
     async def compute_reward(self, transformed_sensors: Dict, action, sim_reward: float) -> float:
         """Reward for selector-policy training.
 
@@ -24,6 +25,7 @@ class MySelectorTeacher(SkillTeacher):
         """
         return float(sim_reward)
 
+    # required
     async def compute_success_criteria(self, transformed_sensors: Dict, action) -> bool:
         """Success condition for the selector episode.
 
@@ -36,6 +38,7 @@ class MySelectorTeacher(SkillTeacher):
         """
         return False
 
+    # required
     async def transform_action(self, transformed_sensors: Dict, action):
         """Convert policy output into the selected child index.
 
@@ -48,6 +51,7 @@ class MySelectorTeacher(SkillTeacher):
         """
         return int(action)
 
+    # required
     async def filtered_sensor_space(self) -> List[str]:
         """Selector sensor dependencies.
 
@@ -57,6 +61,7 @@ class MySelectorTeacher(SkillTeacher):
         """
         return ["counter"]
 
+    # optional
     async def transform_sensors(self, sensors, action) -> Dict:
         """Preprocess sensors before selector logic.
 
@@ -80,6 +85,7 @@ class MySelectorTeacher(SkillTeacher):
             "counter_norm": np.array([counter / 10.0], dtype=np.float32),
         }
 
+    # optional
     async def compute_termination(self, transformed_sensors: Dict, action) -> bool:
         """Terminate the selector episode when counter goes out of valid range.
 
@@ -91,6 +97,7 @@ class MySelectorTeacher(SkillTeacher):
         """
         return float(transformed_sensors["counter"][0]) < -10.0
 
+    # optional
     async def compute_action_mask(self, transformed_sensors: Dict, action) -> List[bool]:
         """Mask child-index actions; length must equal number of children.
 
@@ -117,6 +124,7 @@ from amesa_core.agent.skill.skill_controller import SkillController
 from typing import Dict, List
 
 class MySelectorController(SkillController):
+    # required
     async def compute_action(self, transformed_sensors: Dict, action):
         """Choose the child index directly.
 
@@ -133,6 +141,7 @@ class MySelectorController(SkillController):
         counter = float(transformed_sensors.get("counter_norm", 0.0))
         return [1] if counter > 0.0 else [0]
 
+    # required
     async def filtered_sensor_space(self) -> List[str]:
         """Selector sensor dependencies.
 
@@ -142,6 +151,7 @@ class MySelectorController(SkillController):
         """
         return ["counter"]
 
+    # required
     async def compute_success_criteria(self, transformed_sensors: Dict, action) -> bool:
         """Success condition for the selector run.
 
@@ -154,6 +164,7 @@ class MySelectorController(SkillController):
         """
         return False
 
+    # required
     async def compute_termination(self, transformed_sensors: Dict, action) -> bool:
         """Termination condition for the selector run.
 
@@ -166,6 +177,7 @@ class MySelectorController(SkillController):
         """
         return False
 
+    # optional
     async def transform_sensors(self, sensors) -> Dict:
         """Preprocess sensors before :meth:`compute_action`.
 
@@ -179,20 +191,6 @@ class MySelectorController(SkillController):
         counter = float(sensors.get("counter", 0.0))
         return {**sensors, "counter_norm": counter / 10.0}
 ```
-
-## Selector-specific method behavior
-
-### `transform_action(...)` (teacher selector, required)
-
-Returns the selected child index. Capabilities include mapping policy outputs to child indices, clamping/validation, and deterministic fallback logic when needed.
-
-### `compute_action(...)` (controller selector, required)
-
-Returns the selected child index directly from rules/logic. Capabilities include threshold gates, finite-state routing, and deterministic orchestration.
-
-### `compute_action_mask(...)` (teacher selector, optional)
-
-Constrains which child indices are selectable at a step. Use this to disable unavailable child skills dynamically.
 
 ## Selector runtime contract
 

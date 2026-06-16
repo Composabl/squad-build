@@ -10,8 +10,7 @@ from amesa_core.agent.skill.goals.maintain_goal import MaintainGoal
 from typing import Dict, List
 
 class BalanceTeacher(MaintainGoal):
-    def __init__(self):
-        super().__init__(
+    def __init__(self):        super().__init__(
             sensor="pole_theta",
             target=0.0,
             boundary_left=-0.418,
@@ -19,6 +18,7 @@ class BalanceTeacher(MaintainGoal):
             scale=1.0,
         )
 
+    # required
     async def filtered_sensor_space(self) -> List[str]:
         """Declare the sensors this goal-backed teacher reads.
 
@@ -27,6 +27,7 @@ class BalanceTeacher(MaintainGoal):
         """
         return ["pole_theta", "pole_alpha", "cart_pos", "cart_vel"]
 
+    # required
     async def transform_action(self, transformed_sensors: Dict, action):
         """Convert policy output to simulator action format.
 
@@ -37,6 +38,7 @@ class BalanceTeacher(MaintainGoal):
         """
         return action
 
+    # optional
     async def transform_sensors(self, sensors, action) -> Dict:
         """Precompute derived features before goal logic executes.
 
@@ -56,6 +58,7 @@ class BalanceTeacher(MaintainGoal):
             "cart_vel":   np.array([float(sensors.get("cart_vel",   0.0))], dtype=np.float32),
         }
 
+    # optional
     async def compute_reward(self, transformed_sensors: Dict, action, sim_reward: float) -> float:
         """Override the concrete goal's default reward behavior.
 
@@ -71,6 +74,7 @@ class BalanceTeacher(MaintainGoal):
         """
         return await super().compute_reward(transformed_sensors, action, sim_reward)
 
+    # optional
     async def compute_success_criteria(self, transformed_sensors: Dict, action) -> bool:
         """Override the concrete goal's default success behavior.
 
@@ -84,6 +88,7 @@ class BalanceTeacher(MaintainGoal):
         """
         return await super().compute_success_criteria(transformed_sensors, action)
 
+    # optional
     async def compute_termination(self, transformed_sensors: Dict, action) -> bool:
         """Override the concrete goal's default termination behavior.
 
@@ -97,36 +102,6 @@ class BalanceTeacher(MaintainGoal):
         """
         return await super().compute_termination(transformed_sensors, action)
 ```
-
-## Methods and intended use
-
-When subclassing a concrete goal (`ApproachGoal`, `MaintainGoal`, etc.) as a teacher:
-
-### `filtered_sensor_space(self) -> list[str]` (required)
-
-Declares the sensor keys the goal-teacher depends on. Use it to keep observation inputs explicit and minimal.
-
-### `transform_action(self, transformed_sensors, action)` (required)
-
-Converts policy outputs into simulator-compatible action format.
-
-### `transform_sensors(self, sensors, action) -> dict` (optional)
-
-Builds derived features before reward/success/termination are evaluated.
-
-### `compute_reward(self, transformed_sensors, action, sim_reward) -> float` (optional)
-
-Overrides the concrete goal's reward logic when you need custom shaping beyond the goal default.
-
-### `compute_success_criteria(self, transformed_sensors, action) -> bool` (optional)
-
-Overrides goal success semantics for task-specific completion behavior.
-
-### `compute_termination(self, transformed_sensors, action) -> bool` (optional)
-
-Overrides default termination behavior for safety limits, timeout, or failure conditions.
-
-Most users keep goal reward/success/termination defaults and only implement filtering/transforms.
 
 ## Base `Goal` constructor parameters
 
