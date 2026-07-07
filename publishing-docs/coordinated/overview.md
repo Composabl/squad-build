@@ -1,11 +1,11 @@
-# Coordinated Skills Overview
+# Coordinated Agents Overview
 
-Coordinated skills orchestrate multiple child skills under a coach.
+Coordinated agents orchestrate multiple child agents under a coach.
 
 Core types:
 
-- `SkillCoach`: reward/success/termination coordinator
-- `SkillCoordinatedSet`: fixed set of child skills
-- `SkillCoordinatedPopulation`: child skills with population counts
+- `AgentCoach`: reward/success/termination coordinator
+- `AgentCoordinatedSet`: fixed set of child agents
+- `AgentCoordinatedPopulation`: child agents with population counts
 
-Use coordinated skills when sub-policies should learn independently but act jointly.
+Use coordinated agents when sub-policies should learn independently but act jointly.
