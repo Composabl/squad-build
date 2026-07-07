@@ -1,6 +1,6 @@
 # AgentController Interface
 
-`AgentController` is the deterministic/rule-based interface for a `Agent`.
+`AgentController` is the deterministic/rule-based interface for an `Agent`.
 
 ## Full scaffold
 
