@@ -1,25 +1,25 @@
-# Selector Interface
+# Orchestrator Interface
 
-A selector implementation is either a `SkillTeacher` subclass (learned selector) or a `SkillController` subclass (rule-based selector).
+An orchestrator implementation is either a `AgentTeacher` subclass (learned orchestrator) or a `AgentController` subclass (rule-based orchestrator).
 
-## Full scaffold (teacher selector)
+## Full scaffold (teacher orchestrator)
 
 ```python
 import numpy as np
-from amesa_core.agent.skill.skill_teacher import SkillTeacher
+from amesa_core.orchestration.agent.agent_teacher import AgentTeacher
 from typing import Dict, List
 
-class MySelectorTeacher(SkillTeacher):
+class MyOrchestratorTeacher(AgentTeacher):
     # required
     async def compute_reward(self, transformed_sensors: Dict, action, sim_reward: float) -> float:
-        """Reward for selector-policy training.
+        """Reward for orchestrator-policy training.
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
         :param action: Policy output (child index or probability distribution).
         :param sim_reward: Simulator reward for the current step.
         :type sim_reward: float
-        :returns: Scalar reward for selector policy optimization.
+        :returns: Scalar reward for orchestrator policy optimization.
         :rtype: float
         :raises NotImplementedError: if not overridden in the subclass.
         """
@@ -27,12 +27,12 @@ class MySelectorTeacher(SkillTeacher):
 
     # required
     async def compute_success_criteria(self, transformed_sensors: Dict, action) -> bool:
-        """Success condition for the selector episode.
+        """Success condition for the orchestrator episode.
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
         :param action: Policy output shaped to the action space.
-        :returns: ``True`` when the selector episode succeeds.
+        :returns: ``True`` when the orchestrator episode succeeds.
         :rtype: bool
         :raises NotImplementedError: if not overridden in the subclass.
         """
@@ -53,7 +53,7 @@ class MySelectorTeacher(SkillTeacher):
 
     # required
     async def filtered_sensor_space(self) -> List[str]:
-        """Selector sensor dependencies.
+        """Orchestrator sensor dependencies.
 
         :returns: List of sensor key strings.
         :rtype: List[str]
@@ -63,7 +63,7 @@ class MySelectorTeacher(SkillTeacher):
 
     # optional
     async def transform_sensors(self, sensors, action) -> Dict:
-        """Preprocess sensors before selector logic.
+        """Preprocess sensors before orchestrator logic.
 
         Wraps ``counter`` in a ``np.ndarray`` and derives a normalised value
         so the policy receives a consistent input range.
@@ -87,7 +87,7 @@ class MySelectorTeacher(SkillTeacher):
 
     # optional
     async def compute_termination(self, transformed_sensors: Dict, action) -> bool:
-        """Terminate the selector episode when counter goes out of valid range.
+        """Terminate the orchestrator episode when counter goes out of valid range.
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
@@ -101,7 +101,7 @@ class MySelectorTeacher(SkillTeacher):
     async def compute_action_mask(self, transformed_sensors: Dict, action) -> List[bool]:
         """Mask child-index actions; length must equal number of children.
 
-        Disables child 1 (e.g. an aggressive sub-skill) when the counter is
+        Disables child 1 (e.g. an aggressive sub-agent) when the counter is
         already negative, keeping only the conservative child available.
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
@@ -117,19 +117,19 @@ class MySelectorTeacher(SkillTeacher):
         return [True, counter >= 0.0]
 ```
 
-## Full scaffold (controller selector)
+## Full scaffold (controller orchestrator)
 
 ```python
-from amesa_core.agent.skill.skill_controller import SkillController
+from amesa_core.orchestration.agent.agent_controller import AgentController
 from typing import Dict, List
 
-class MySelectorController(SkillController):
+class MyOrchestratorController(AgentController):
     # required
     async def compute_action(self, transformed_sensors: Dict, action):
         """Choose the child index directly.
 
         Routes to child 1 while the counter is positive; falls back to
-        child 0 (the conservative sub-skill) once it goes non-positive.
+        child 0 (the conservative sub-agent) once it goes non-positive.
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
@@ -143,7 +143,7 @@ class MySelectorController(SkillController):
 
     # required
     async def filtered_sensor_space(self) -> List[str]:
-        """Selector sensor dependencies.
+        """Orchestrator sensor dependencies.
 
         :returns: List of sensor key strings.
         :rtype: List[str]
@@ -153,12 +153,12 @@ class MySelectorController(SkillController):
 
     # required
     async def compute_success_criteria(self, transformed_sensors: Dict, action) -> bool:
-        """Success condition for the selector run.
+        """Success condition for the orchestrator run.
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
         :param action: Current action.
-        :returns: ``True`` when the selector run succeeds.
+        :returns: ``True`` when the orchestrator run succeeds.
         :rtype: bool
         :raises NotImplementedError: if not overridden in the subclass.
         """
@@ -166,12 +166,12 @@ class MySelectorController(SkillController):
 
     # required
     async def compute_termination(self, transformed_sensors: Dict, action) -> bool:
-        """Termination condition for the selector run.
+        """Termination condition for the orchestrator run.
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
         :param action: Current action.
-        :returns: ``True`` when the selector run should terminate.
+        :returns: ``True`` when the orchestrator run should terminate.
         :rtype: bool
         :raises NotImplementedError: if not overridden in the subclass.
         """
@@ -192,8 +192,8 @@ class MySelectorController(SkillController):
         return {**sensors, "counter_norm": counter / 10.0}
 ```
 
-## Selector runtime contract
+## Orchestrator runtime contract
 
-- Selector action space is always `Discrete(number_of_children)`.
+- Orchestrator action space is always `Discrete(number_of_children)`.
 - The selected index points into `config.children` order.
-- Runtime returns the selected **child skill action** to the environment, not the selector index.
+- Runtime returns the selected **child agent action** to the environment, not the orchestrator index.
