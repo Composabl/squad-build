@@ -1,17 +1,17 @@
 # Coordinated Job JSON Schema
 
-Coordinated entries are serialized in `skills_coordinated[]` (e.g., `SkillCoordinatedSchema`-style blocks).
+Coordinated entries are serialized in `agents_coordinated[]` (e.g., `AgentCoordinatedSchema`-style blocks).
 
 ## Core shape
 
 ```json
 {
-  "name": "team-skill",
-  "type": "SkillCoordinatedSet",
+  "name": "team-agent",
+  "type": "AgentCoordinatedSet",
   "config": {
     "remote_address": null,
-    "impl_cls": { "cls_name": "MyCoach", "cls_module": "my_agent.coach", "cls_src": "<base64-pickle>", "cls_deps": [] },
-    "skills": [],
+    "impl_cls": { "cls_name": "MyCoach", "cls_module": "my_orchestration.coach", "cls_src": "<base64-pickle>", "cls_deps": [] },
+    "agents": [],
     "scenarios": []
   }
 }
@@ -19,7 +19,7 @@ Coordinated entries are serialized in `skills_coordinated[]` (e.g., `SkillCoordi
 
 ## Key meaning
 
-- `type`: `"SkillCoordinatedSet"` or `"SkillCoordinatedPopulation"`.
+- `type`: `"AgentCoordinatedSet"` or `"AgentCoordinatedPopulation"`.
 - `impl_cls`: serialized coach.
-- `skills`: child skill metadata list.
+- `agents`: child agent metadata list.
 - `scenarios`: coordinated scenario list.
