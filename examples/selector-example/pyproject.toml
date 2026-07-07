@@ -1,12 +1,12 @@
 [project]
-name = "selector-example"
+name = "orchestrator-example"
 version = "0.1.0"
-description = "Example selector-teacher: chooses between two child skills from demand and error signals."
+description = "Example orchestrator-teacher: chooses between two child agents from demand and error signals."
 authors = [{ name = "Your Name", email = "you@example.com" }]
 dependencies = [
     "amesa-core",
 ]
 
 [amesa]
-type = "selector-teacher"
-entrypoint = "selector_example.teacher:CounterSelectorTeacher"
+type = "orchestrator-teacher"
+entrypoint = "orchestrator_example.teacher:CounterOrchestratorTeacher"
