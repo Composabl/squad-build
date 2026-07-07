@@ -1,14 +1,14 @@
-# SkillController Interface
+# AgentController Interface
 
-`SkillController` is the deterministic/rule-based interface for a `Skill`.
+`AgentController` is the deterministic/rule-based interface for a `Agent`.
 
 ## Full scaffold
 
 ```python
-from amesa_core.orchestration.agent.agent_controller import SkillController
+from amesa_core.orchestration.agent.agent_controller import AgentController
 from typing import Dict
 
-class MyController(SkillController):
+class MyController(AgentController):
     # required
     async def compute_action(self, transformed_sensors: Dict, action):
         """Produce the simulator action from transformed sensors.
