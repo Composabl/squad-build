@@ -1,40 +1,40 @@
 {
   "name": "squad-build",
   "repository": "Composabl/squad-build",
-  "description": "Reference implementation and documentation for building AMESA agents and simulators using the AMESA SDK.",
+  "description": "Reference implementation and documentation for building AMESA orchestrations and simulators using the AMESA SDK.",
   "directories": {
     "publishing-docs": {
       "description": "Granular publishing/reference docs split by component and concern to improve targeted retrieval by analysis agents.",
       "subdirectories": {
         "teacher": {
-          "description": "SkillTeacher docs split by concern.",
+          "description": "AgentTeacher docs split by concern.",
           "files": {
-            "overview.md": "What SkillTeacher is for and when to use it",
-            "reference.md": "Full SkillTeacher scaffold with all required/optional methods, functional intent, capability notes, and :raises: entries covering NotImplementedError, AttributeError on non-array filtered sensors, and ValueError on action-mask length mismatches",
-            "job-json-schema.md": "Serialized teacher skill config shape and field intent",
-            "publishing.md": "pyproject.toml portable component spec for skill-teacher",
+            "overview.md": "What AgentTeacher is for and when to use it",
+            "reference.md": "Full AgentTeacher scaffold with all required/optional methods, functional intent, capability notes, and :raises: entries covering NotImplementedError, AttributeError on non-array filtered sensors, and ValueError on action-mask length mismatches",
+            "job-json-schema.md": "Serialized teacher agent config shape and field intent",
+            "publishing.md": "pyproject.toml portable component spec for agent-teacher",
             "quirks.md": "Behavior caveats and common failure modes"
           }
         },
         "controller": {
-          "description": "SkillController docs split by concern.",
+          "description": "AgentController docs split by concern.",
           "files": {
             "overview.md": "When to use deterministic controllers",
-            "reference.md": "Full SkillController scaffold with all required/optional methods, intended use, capabilities, and :raises: entries covering NotImplementedError on each abstract method",
-            "scenarios.md": "Scenario usage pattern for controller-backed skills",
+            "reference.md": "Full AgentController scaffold with all required/optional methods, intended use, capabilities, and :raises: entries covering NotImplementedError on each abstract method",
+            "scenarios.md": "Scenario usage pattern for controller-backed agents",
             "job-json-schema.md": "Serialized controller config shape",
-            "publishing.md": "pyproject.toml portable component spec for skill-controller",
+            "publishing.md": "pyproject.toml portable component spec for agent-controller",
             "quirks.md": "Controller-specific caveats"
           }
         },
         "coordinated": {
-          "description": "SkillCoach / coordinated set/population docs split by concern.",
+          "description": "AgentCoach / coordinated set/population docs split by concern.",
           "files": {
             "overview.md": "Core coordinated types and use cases",
-            "reference.md": "Full SkillCoach scaffold with all required/optional methods and team-level functional behavior",
-            "child-skills.md": "Child skill registration and naming constraints",
-            "job-json-schema.md": "Serialized coordinated skill config shape",
-            "publishing.md": "pyproject.toml portable component spec for coordinated skills",
+            "reference.md": "Full AgentCoach scaffold with all required/optional methods and team-level functional behavior",
+            "child-agents.md": "Child agent registration and naming constraints",
+            "job-json-schema.md": "Serialized coordinated agent config shape",
+            "publishing.md": "pyproject.toml portable component spec for coordinated agents",
             "quirks.md": "Coordinated training caveats"
           }
         },
@@ -43,7 +43,7 @@
           "files": {
             "overview.md": "Perceptor role and intended usage",
             "reference.md": "Full PerceptorImpl scaffold with complete method contract, feature-derivation intent, and :raises: entries covering NotImplementedError, key-collision Exception, and ValueError on None leaf values",
-            "registration.md": "Agent registration and state/reset behavior",
+            "registration.md": "Orchestration registration and state/reset behavior",
             "job-json-schema.md": "Serialized perceptor config shape",
             "publishing.md": "pyproject.toml portable component spec for perceptors",
             "quirks.md": "Perceptor-specific caveats"
@@ -61,46 +61,46 @@
             "quirks.md": "Goal-specific caveats and edge cases"
           }
         },
-        "selectors": {
-          "description": "SkillSelector docs split by concern.",
+        "orchestrators": {
+          "description": "AgentOrchestrator docs split by concern.",
           "files": {
-            "overview.md": "Selector purpose, routing model, and SDK compliance essentials",
-            "reference.md": "Teacher/controller selector scaffolds with selector-specific method contracts and :raises: entries for abstract methods, action-mask length mismatches, and AttributeError on non-array filtered sensors",
-            "job-json-schema.md": "Serialized selector config shapes for SkillSelector and SkillSelectorController",
-            "publishing.md": "Scaffold, package metadata, compliance checklist, and selector publish command",
-            "quirks.md": "Selector-specific caveats around type names, child indexing, and action masks"
+            "overview.md": "Orchestrator purpose, routing model, and SDK compliance essentials",
+            "reference.md": "Teacher/controller orchestrator scaffolds with orchestrator-specific method contracts and :raises: entries for abstract methods, action-mask length mismatches, and AttributeError on non-array filtered sensors",
+            "job-json-schema.md": "Serialized orchestrator config shapes for AgentOrchestrator and AgentOrchestratorController",
+            "publishing.md": "Scaffold, package metadata, compliance checklist, and orchestrator publish command",
+            "quirks.md": "Orchestrator-specific caveats around type names, child indexing, and action masks"
           }
         }
       }
     },
     "examples": {
-      "description": "Uploadable example components, one per publishable type. Each subdirectory is a self-contained package ready for amesa_cli skill publish.",
+      "description": "Uploadable example components, one per publishable type. Each subdirectory is a self-contained package ready for amesa_cli agent publish.",
       "subdirectories": {
         "teacher-example": {
-          "description": "SkillTeacher example: ReactorTemperatureTeacher regulates reactor temperature toward a setpoint.",
+          "description": "AgentTeacher example: ReactorTemperatureTeacher regulates reactor temperature toward a setpoint.",
           "entrypoint": "teacher_example.teacher:ReactorTemperatureTeacher",
           "files": {
-            "pyproject.toml": "Package metadata; [amesa] type = skill-teacher",
+            "pyproject.toml": "Package metadata; [amesa] type = agent-teacher",
             "teacher_example/__init__.py": "Package init",
             "teacher_example/teacher.py": "ReactorTemperatureTeacher — reward shaped on absolute temperature error, success within 1 °C of setpoint, termination on unsafe temperature"
           }
         },
         "controller-example": {
-          "description": "SkillController example: PDController implements a proportional-derivative law for a 1-D position servo.",
+          "description": "AgentController example: PDController implements a proportional-derivative law for a 1-D position servo.",
           "entrypoint": "controller_example.controller:PDController",
           "files": {
-            "pyproject.toml": "Package metadata; [amesa] type = skill-controller",
+            "pyproject.toml": "Package metadata; [amesa] type = agent-controller",
             "controller_example/__init__.py": "Package init",
             "controller_example/controller.py": "PDController — force = -(Kp * position + Kd * velocity), success at |position| < 0.05 m, termination at |position| > 10 m"
           }
         },
         "coordinated-example": {
-          "description": "SkillCoach (coordinated set) example: DriveCoach coordinates a navigate sub-skill and an avoid sub-skill for autonomous driving.",
+          "description": "AgentCoach (coordinated set) example: DriveCoach coordinates a navigate sub-agent and an avoid sub-agent for autonomous driving.",
           "entrypoint": "coordinated_example.coach:DriveCoach",
           "files": {
-            "pyproject.toml": "Package metadata; [amesa] type = skill-coordinated-set",
+            "pyproject.toml": "Package metadata; [amesa] type = agent-coordinated-set",
             "coordinated_example/__init__.py": "Package init",
-            "coordinated_example/coach.py": "DriveCoach — distributes independent rewards to 'navigate' (distance-to-goal) and 'avoid' (obstacle clearance) sub-skills"
+            "coordinated_example/coach.py": "DriveCoach — distributes independent rewards to 'navigate' (distance-to-goal) and 'avoid' (obstacle clearance) sub-agents"
           }
         },
         "perceptors-example": {
@@ -116,18 +116,18 @@
           "description": "Goal example: LandingGoal is a CoordinatedGoal (AND) combining ApproachGoal (reach altitude 0) and AvoidGoal (limit descent speed) for a soft-landing task.",
           "entrypoint": "goals_example.goal:LandingGoal",
           "files": {
-            "pyproject.toml": "Package metadata; [amesa] type = skill-teacher (Goal subclasses are SkillTeacher)",
+            "pyproject.toml": "Package metadata; [amesa] type = agent-teacher (Goal subclasses are AgentTeacher)",
             "goals_example/__init__.py": "Package init",
             "goals_example/goal.py": "LandingGoal — ApproachGoal on altitude (target 0, boundary ±0.5 m, scale 2) + AvoidGoal on descent_velocity (boundary 0–5 m/s), AND strategy, weights [2, 1]"
           }
         },
-        "selector-example": {
-          "description": "Selector example: CounterSelectorTeacher chooses a child skill index from demand and error signals.",
-          "entrypoint": "selector_example.teacher:CounterSelectorTeacher",
+        "orchestrator-example": {
+          "description": "Orchestrator example: CounterOrchestratorTeacher chooses a child agent index from demand and error signals.",
+          "entrypoint": "orchestrator_example.teacher:CounterOrchestratorTeacher",
           "files": {
-            "pyproject.toml": "Package metadata; [amesa] type = selector-teacher",
-            "selector_example/__init__.py": "Package init",
-            "selector_example/teacher.py": "CounterSelectorTeacher — routes between child indices with optional masking; reward favors high demand and low error"
+            "pyproject.toml": "Package metadata; [amesa] type = orchestrator-teacher",
+            "orchestrator_example/__init__.py": "Package init",
+            "orchestrator_example/teacher.py": "CounterOrchestratorTeacher — routes between child indices with optional masking; reward favors high demand and low error"
           }
         }
       }
