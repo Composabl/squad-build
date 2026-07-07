@@ -1,38 +1,38 @@
-# Selector Publishing
+# Orchestrator Publishing
 
-Use `amesa selector` commands for selector lifecycle: scaffold, package, and publish.
+Use `amesa orchestrator` commands for orchestrator lifecycle: scaffold, package, and publish.
 
 ## Portable package config (`pyproject.toml`)
 
-Teacher selector:
+Teacher orchestrator:
 
 ```toml
 [project]
-name = "my-selector"
+name = "my-orchestrator"
 version = "0.1.0"
 dependencies = ["amesa-core"]
 
 [amesa]
-type = "selector-teacher"
-entrypoint = "my_selector.teacher:Teacher"
+type = "orchestrator-teacher"
+entrypoint = "my_orchestrator.teacher:Teacher"
 ```
 
-Controller selector:
+Controller orchestrator:
 
 ```toml
 [project]
-name = "my-selector"
+name = "my-orchestrator"
 version = "0.1.0"
 dependencies = ["amesa-core"]
 
 [amesa]
-type = "selector-controller"
-entrypoint = "my_selector.controller:Controller"
+type = "orchestrator-controller"
+entrypoint = "my_orchestrator.controller:Controller"
 ```
 
 ## Compliance checklist
 
-- `[amesa].type` is exactly `selector-teacher` or `selector-controller`.
+- `[amesa].type` is exactly `orchestrator-teacher` or `orchestrator-controller`.
 - `[amesa].entrypoint` is `module.path:ClassName`.
-- Selector class implements the correct base interface (teacher/controller).
-- Selector chooses valid child indices and is configured with at least one child.
+- Orchestrator class implements the correct base interface (teacher/controller).
+- Orchestrator chooses valid child indices and is configured with at least one child.
