@@ -1,25 +1,25 @@
 # Coordinated Interface
 
-`SkillCoach` defines reward/success/termination across a coordinated group of child skills.
+`AgentCoach` defines reward/success/termination across a coordinated group of child agents.
 
 ## Full scaffold
 
 ```python
-from amesa_core.agent.skill.skill_coach import SkillCoach
+from amesa_core.orchestration.agent.agent_coach import AgentCoach
 from typing import Dict
 
-class MyCoach(SkillCoach):
+class MyCoach(AgentCoach):
     # required
     async def compute_reward(self, transformed_sensors: Dict, action, sim_reward):
         """Return per-child rewards for coordinated learning.
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
-        :param action: Dict of child actions keyed by child skill name.
+        :param action: Dict of child actions keyed by child agent name.
         :param sim_reward: Simulator reward for the current step.
-        :returns: Dict mapping child skill names to scalar reward values.
+        :returns: Dict mapping child agent names to scalar reward values.
         :rtype: dict[str, float]
-        :note: Reward dict keys must exactly match child skill names in the
+        :note: Reward dict keys must exactly match child agent names in the
             coordinated set or population.
         """
         return {
@@ -33,7 +33,7 @@ class MyCoach(SkillCoach):
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
-        :param action: Dict of child actions keyed by child skill name.
+        :param action: Dict of child actions keyed by child agent name.
         :returns: ``True`` when the coordinated objective is complete.
         :rtype: bool
         """
@@ -45,7 +45,7 @@ class MyCoach(SkillCoach):
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
-        :param action: Dict of child actions keyed by child skill name.
+        :param action: Dict of child actions keyed by child agent name.
         :returns: ``True`` when the coordinated episode should stop.
         :rtype: bool
         """
@@ -59,7 +59,7 @@ class MyCoach(SkillCoach):
         that both children can share without unit-specific scaling.
 
         :param sensors: Raw sensor dict from the environment.
-        :param action: Dict of child actions keyed by child skill name.
+        :param action: Dict of child actions keyed by child agent name.
         :returns: Transformed sensor dict.
         :rtype: Dict
         """
@@ -79,7 +79,7 @@ class MyCoach(SkillCoach):
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
-        :param action: Dict of child actions keyed by child skill name.
+        :param action: Dict of child actions keyed by child agent name.
         :returns: Rewritten per-child action dict.
         :rtype: dict
         """
@@ -97,7 +97,7 @@ class MyCoach(SkillCoach):
 
         :param transformed_sensors: Post-:meth:`transform_sensors` sensor dict.
         :type transformed_sensors: Dict
-        :param action: Dict of child actions keyed by child skill name.
+        :param action: Dict of child actions keyed by child agent name.
         :returns: Dict of per-child masks, or ``None`` per child for no mask.
         :rtype: dict
         """
