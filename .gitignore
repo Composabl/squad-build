@@ -3,8 +3,5 @@
 .venv/
 **/__pycache__/
 
-deprecated/
-
 .env
 package.sh
-sdk
